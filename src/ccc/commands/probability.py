@@ -19,14 +19,25 @@ def probability() -> None:
 
 @probability.command()
 @click.option("--size", "-s", type=int, required=True)
-@click.option("--constraints", "-c", type=str, required=True)
+@click.option("--constraints", "-c", type=str)
 @click.option("--collection", "-k", type=str, required=True)
-def draw(size, constraints, collection) -> None:
+@click.option("--rational/--float", default=True)
+def draw(size, constraints, collection, rational) -> None:
     """
-    Compute the probability of choosing, from a given collection,
-    size-many items that meet the constraint criteria.
+    Probability of drawing (without replacement) a collection
+    of the specified size from the specified collection that
+    optionally meets one or more contraints.
     """
-    #processed_constraints: List[Tuple] = process_constraint_string(constraints)
-    #collection_items: Dict[str, int] = process_collection_string(collection)
+    if constraints is not None:
+        constraints = process_constraint_string(constraints)
 
-    click.echo("not yet implemented")
+    collection = process_collection_string(collection)
+
+    ms = MultisetCounter(size, constraints, collection)
+
+    answer = ms.draw_probability()
+
+    if rational:
+        click.echo(answer)
+    else:
+        click.echo(float(answer))
