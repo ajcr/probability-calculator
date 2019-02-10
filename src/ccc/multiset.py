@@ -1,6 +1,6 @@
 from typing import Collection, Dict, List, Optional, Set, Tuple
 
-from sympy import Poly, prod
+from sympy import Poly, Rational, prod, binomial
 from sympy.abc import x
 
 from ccc.errors import ConstraintNotImplementedError
@@ -34,6 +34,22 @@ def degrees_to_polynomial(degrees: Set[int]) -> Poly:
     """
     degrees_dict = dict.fromkeys(degrees, 1)
     return Poly.from_dict(degrees_dict, x)
+
+
+def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly:
+    """
+    For each degree in a set, create the polynomial with those
+    terms with degree d having coefficient binomial(n, d):
+
+        {0, 2, 5} -> bin(n, 5)*x**5 + bin(n, 2)*x**2 + 1
+
+    """
+    degree_coeff_dict = {}
+
+    for degree in degrees:
+        degree_coeff_dict[degree] = binomial(n, degree)
+
+    return Poly.from_dict(degree_coeff_dict, x)
 
 
 class MultisetCounter:
@@ -135,11 +151,47 @@ class MultisetCounter:
         else:
             self._degrees[item] = set(range(rem, self._max_degree + 1, mod))
 
+    def total_items_in_collection(self) -> Optional[int]:
+        """
+        The total number of items in the collection, if given.
+        """
+        if self._collection is not None:
+            return sum(self._collection.values())
+
     def count(self) -> int:
         """
-        Count the number of possible multisets.
+        Number of possible multisets.
         """
         # multiply polynomials with fewer terms first
         degree_sets = sorted(self._degrees.values(), key=len)
         poly = prod(degrees_to_polynomial(degrees) for degrees in degree_sets)
         return poly.coeff_monomial(x ** self._max_degree)
+
+    def draws(self) -> int:
+        """
+        Number of ways of drawing the multiset from the collection
+        (without replacement).
+
+        """
+        if self._collection is not None:
+
+            polys = []
+
+            for item, degrees in self._degrees.items():
+
+                p = degrees_to_polynomial_with_binomial_coeff(degrees, self._collection[item])
+                polys.append(p)
+
+            poly = prod(polys)
+            return poly.coeff_monomial(x ** self._max_degree)
+
+        else:
+            raise ValueError("Cannot use 'draw' when collection is None")
+
+    def draw_probability(self) -> Rational:
+        """
+        Probability of drawing the multiset from the collection
+        (without replacement).
+
+        """
+        return self.draws() / binomial(self.total_items_in_collection(), self._max_degree)
