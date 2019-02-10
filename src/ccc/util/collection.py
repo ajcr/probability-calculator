@@ -1,6 +1,8 @@
 import ast
 from typing import Dict, Tuple
 
+from ccc.errors import CollectionError
+
 
 def unpack_assign(assign: ast.Assign) -> Tuple[str, int]:
     """
@@ -12,13 +14,13 @@ def unpack_assign(assign: ast.Assign) -> Tuple[str, int]:
         value = assign.value.n
 
     except (AttributeError, TypeError):
-        raise ValueError(f"Item count at {assign.col_offset} not understood") from None
+        raise CollectionError(f"Item count at {assign.col_offset} not understood") from None
 
     if len(targets) > 1:
-        raise ValueError(f"Can only assign count to single item, not {','.join(targets)}")
+        raise CollectionError(f"Can only assign count to single item, not {','.join(targets)}")
 
     if not isinstance(value, int) or value < 1:
-        raise ValueError(f"Item counts must be positive integers, got {value}")
+        raise CollectionError(f"Item counts must be positive integers, got {value}")
 
     return targets[0].id, value
 
@@ -40,12 +42,12 @@ def process_collection_string(collection_string: str) -> Dict[str, int]:
             item, count = unpack_assign(node)
 
         else:
-            raise ValueError(f"Invalid item assignment in string")
+            raise CollectionError(f"Invalid item assignment in string at offset {node.col_offset}")
 
-        if item in item_counts:
-            raise ValueError(f"Item '{item}' has multiple counts assigned")
+        if item not in item_counts:
+            item_counts[item] = count
 
         else:
-            item_counts[item] = count
+            raise CollectionError(f"Item '{item}' has multiple counts assigned")
 
     return item_counts

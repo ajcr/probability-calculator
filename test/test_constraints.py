@@ -1,6 +1,7 @@
 import pytest
 
 from ccc.util.constraints import process_constraint_string
+from ccc.errors import ConstraintError
 
 
 @pytest.mark.parametrize("string,expected", [
@@ -48,5 +49,5 @@ def test_process_constraint_string_succeeds(string, expected):
     "red % 5 < 3",
 ])
 def test_process_constraint_string_fails(string):
-    with pytest.raises(ValueError):
+    with pytest.raises(ConstraintError):
          process_constraint_string(string)

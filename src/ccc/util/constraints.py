@@ -1,6 +1,8 @@
 import ast
 from typing import List, Tuple
 
+from ccc.errors import ConstraintError
+
 # Mappings for ast node classes to strings
 
 CONTAINS_OPS = {
@@ -97,7 +99,7 @@ def unpack_single_compare_operation(compare: ast.Compare) -> Tuple:
             # fall through to error
             pass
 
-    raise ValueError(f"Constraint starting at offset {compare.col_offset} not understood")
+    raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
 
 
 def unpack_chained_compare_operation(compare: ast.Compare) -> Tuple:
@@ -129,7 +131,7 @@ def unpack_chained_compare_operation(compare: ast.Compare) -> Tuple:
     except (AttributeError, TypeError):
         pass
 
-    raise ValueError(f"Constraint starting at offset {compare.col_offset} not understood")
+    raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
 
 
 def unpack_compare(compare: ast.Compare) -> List[Tuple]:
@@ -146,7 +148,7 @@ def unpack_compare(compare: ast.Compare) -> List[Tuple]:
         return unpack_chained_compare_operation(compare)
 
     else:
-        raise ValueError(
+        raise ConstraintError(
             f"Constraint at offset {compare.col_offset} contains"
             " chained comparison longer than two"
         )
@@ -168,7 +170,7 @@ def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
             constraints += [(node.id,)]
 
         else:
-            raise ValueError("Unknown constraint in tuple")
+            raise ConstraintError(f"Unknown constraint in tuple at offset {node.col_offset}")
 
     return constraints
 
@@ -195,4 +197,4 @@ def process_constraint_string(constraint_string: str) -> List[Tuple]:
         return [(node.id,)]
 
     else:
-        raise ValueError(f"Invalid constraint(s): {constraint_string}")
+        raise ConstraintError(f"Invalid constraint(s): {constraint_string}")

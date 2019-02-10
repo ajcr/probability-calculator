@@ -3,6 +3,8 @@ from typing import Collection, Dict, List, Optional, Set, Tuple
 from sympy import Poly, prod
 from sympy.abc import x
 
+from ccc.errors import ConstraintNotImplementedError
+
 
 def _constraint_items_missing_from_collection(
     constraints: List[Tuple],
@@ -64,7 +66,7 @@ class MultisetCounter:
         if collection is not None and constraints is not None:
             missing = _constraint_items_missing_from_collection(constraints, collection)
             if missing:
-                raise Exception(
+                raise ValueError(
                     f"The following items are not in the collection: {', '.join(missing)}"
                 )
 
@@ -75,7 +77,8 @@ class MultisetCounter:
                 try:
                     getattr(self, "impose_constraint_" + op)(*args)
                 except AttributeError:
-                    raise NotImplementedError from None
+                    raise ConstraintNotImplementedError(
+                        f"Constraint '{op}' is not implemented") from None
 
         # add items from the collection that were not constrained
 
