@@ -33,9 +33,12 @@ def draw(size, constraints, collection, rational) -> None:
 
     collection = process_collection_string(collection)
 
-    ms = MultisetCounter(size, constraints, collection)
+    if len(constraints) == 1:
+        ms = MultisetCounter(size, constraints[0], collection)
+        answer = ms.draw_probability()
 
-    answer = ms.draw_probability()
+    else:
+        click.echo("Not Implemented")
 
     if rational:
         click.echo(answer)

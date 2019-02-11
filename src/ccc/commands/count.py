@@ -29,11 +29,13 @@ def multisets(size, constraints, collection):
     if collection is not None:
         collection = process_collection_string(collection)
 
-    ms = MultisetCounter(size, constraints, collection)
+    if len(constraints) == 1:
+        ms = MultisetCounter(size, constraints[0], collection)
+        answer = ms.count()
+        click.echo(answer)
 
-    answer = ms.count()
-
-    click.echo(answer)
+    else:
+        click.echo("Not Implemented")
 
 
 @count.command()
@@ -51,11 +53,13 @@ def draws(size, constraints, collection):
 
     collection = process_collection_string(collection)
 
-    ms = MultisetCounter(size, constraints, collection)
+    if len(constraints) == 1:
+        ms = MultisetCounter(size, constraints[0], collection)
+        answer = ms.draws()
+        click.echo(answer)
 
-    answer = ms.draws()
-
-    click.echo(answer)
+    else:
+        click.echo("Not Implemented")
 
 
 @count.command()

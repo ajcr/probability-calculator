@@ -158,6 +158,7 @@ def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
     """
     Visit and process each constraint in the tuple.
 
+    Each constraint can be either a compare operateration or a name.
     """
     constraints: List = []
 
@@ -175,26 +176,55 @@ def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
     return constraints
 
 
-def process_constraint_string(constraint_string: str) -> List[Tuple]:
+def process_boolop_node(boolop_node: ast.BoolOp) -> List[List[Tuple]]:
+    """
+    Disjunctions ('or') of tuples, comparisions or names are supported.
+
+    Boolean operations are not permitted within disjuncts.
+    """
+    disjunctions = []
+
+    for node in boolop_node.values:
+
+        if isinstance(node, ast.Tuple):
+            disjunctions += [process_constraints_in_tuple(node)]
+
+        elif isinstance(node, ast.Compare):
+            disjunctions += [unpack_compare(node)]
+
+        elif isinstance(node, ast.Name):
+            disjunctions += [[(node.id,)]]
+
+        else:
+            raise ConstraintError(f"Invalid constraint in disjunction at offset {node.col_offset}")
+
+    return disjunctions
+
+
+def process_constraint_string(constraint_string: str) -> List[List[Tuple]]:
     """
     Parse and process a string representing the collection constraints.
 
-    Currently, only conjunction of constraints is supported.
     Conjuncts must be expressed as a tuple and can be comparison
     operations or names.
 
     Single comparision operations and names are also permitted.
+
+    Disjunctions ('or') of tuples, comparisions or names are supported.
     """
     node = ast.parse(constraint_string).body[0].value
 
-    if isinstance(node, ast.Tuple):
-        return process_constraints_in_tuple(node)
+    if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.Or):
+        return process_boolop_node(node)
+
+    elif isinstance(node, ast.Tuple):
+        return [process_constraints_in_tuple(node)]
 
     elif isinstance(node, ast.Compare):
-        return unpack_compare(node)
+        return [unpack_compare(node)]
 
     elif isinstance(node, ast.Name):
-        return [(node.id,)]
+        return [[(node.id,)]]
 
     else:
         raise ConstraintError(f"Invalid constraint(s): {constraint_string}")
