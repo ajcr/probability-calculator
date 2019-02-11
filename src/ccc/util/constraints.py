@@ -32,7 +32,7 @@ REFLECT_ORDER_OPS = {
 }
 
 
-def unpack_single_compare_operation(compare: ast.Compare) -> Tuple:
+def process_single_compare_operation(compare: ast.Compare) -> Tuple:
     """
     Unpack a compare operation into its constituent parts.
 
@@ -102,7 +102,7 @@ def unpack_single_compare_operation(compare: ast.Compare) -> Tuple:
     raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
 
 
-def unpack_chained_compare_operation(compare: ast.Compare) -> Tuple:
+def process_chained_compare_operation(compare: ast.Compare) -> Tuple:
     """
     Unpack a chained compare operation into its two
     constituent parts.
@@ -134,7 +134,7 @@ def unpack_chained_compare_operation(compare: ast.Compare) -> Tuple:
     raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
 
 
-def unpack_compare(compare: ast.Compare) -> List[Tuple]:
+def process_compare(compare: ast.Compare) -> List[Tuple]:
     """
     Unpack a compare node into constraints.
 
@@ -142,10 +142,10 @@ def unpack_compare(compare: ast.Compare) -> List[Tuple]:
     n: int = len(compare.comparators)
 
     if n == 1:
-        return [unpack_single_compare_operation(compare)]
+        return [process_single_compare_operation(compare)]
 
     elif n == 2:
-        return unpack_chained_compare_operation(compare)
+        return process_chained_compare_operation(compare)
 
     else:
         raise ConstraintError(
@@ -165,7 +165,7 @@ def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
     for node in constraint_tuple.elts:
 
         if isinstance(node, ast.Compare):
-            constraints += unpack_compare(node)
+            constraints += process_compare(node)
 
         elif isinstance(node, ast.Name):
             constraints += [(node.id,)]
@@ -190,7 +190,7 @@ def process_boolop_node(boolop_node: ast.BoolOp) -> List[List[Tuple]]:
             disjunctions += [process_constraints_in_tuple(node)]
 
         elif isinstance(node, ast.Compare):
-            disjunctions += [unpack_compare(node)]
+            disjunctions += [process_compare(node)]
 
         elif isinstance(node, ast.Name):
             disjunctions += [[(node.id,)]]
@@ -221,7 +221,7 @@ def process_constraint_string(constraint_string: str) -> List[List[Tuple]]:
         return [process_constraints_in_tuple(node)]
 
     elif isinstance(node, ast.Compare):
-        return [unpack_compare(node)]
+        return [process_compare(node)]
 
     elif isinstance(node, ast.Name):
         return [[(node.id,)]]
