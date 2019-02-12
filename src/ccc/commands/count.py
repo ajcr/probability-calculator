@@ -1,8 +1,11 @@
+import sys
+
 import click
 
 from ccc.multiset import MultisetCounter
 from ccc.util.constraints import process_constraint_string
 from ccc.util.collection import process_collection_string
+from ccc.util.misc import subsets
 
 
 @click.group()
@@ -32,10 +35,18 @@ def multisets(size, constraints, collection):
     if len(constraints) == 1:
         ms = MultisetCounter(size, constraints[0], collection)
         answer = ms.count()
-        click.echo(answer)
 
     else:
-        click.echo("Not Implemented")
+        if collection is None:
+            sys.exit("Must specify a collection if using 'or' in constraints")
+
+        answer = 0
+
+        for n, subset in subsets(constraints):
+            ms = MultisetCounter(size, subset, collection)
+            answer += (-1)**(n+1) * ms.count()
+
+    click.echo(answer)
 
 
 @count.command()
@@ -59,7 +70,13 @@ def draws(size, constraints, collection):
         click.echo(answer)
 
     else:
-        click.echo("Not Implemented")
+        answer = 0
+
+        for n, subset in subsets(constraints):
+            ms = MultisetCounter(size, subset, collection)
+            answer += (-1)**(n+1) * ms.draws()
+
+    click.echo("Not Implemented")
 
 
 @count.command()

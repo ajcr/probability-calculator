@@ -6,6 +6,7 @@ import click
 from ccc.multiset import MultisetCounter
 from ccc.util.constraints import process_constraint_string
 from ccc.util.collection import process_collection_string
+from ccc.util.misc import subsets
 
 
 @click.group()
@@ -38,7 +39,11 @@ def draw(size, constraints, collection, rational) -> None:
         answer = ms.draw_probability()
 
     else:
-        click.echo("Not Implemented")
+        answer = 0
+
+        for n, subset in subsets(constraints):
+            ms = MultisetCounter(size, subset, collection)
+            answer += (-1)**(n+1) * ms.draw_probability()
 
     if rational:
         click.echo(answer)
