@@ -32,7 +32,7 @@ REFLECT_ORDER_OPS = {
 }
 
 
-def unpack_single_compare_operation(compare: ast.Compare) -> Tuple:
+def process_single_compare_operation(compare: ast.Compare) -> Tuple:
     """
     Unpack a compare operation into its constituent parts.
 
@@ -102,7 +102,7 @@ def unpack_single_compare_operation(compare: ast.Compare) -> Tuple:
     raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
 
 
-def unpack_chained_compare_operation(compare: ast.Compare) -> Tuple:
+def process_chained_compare_operation(compare: ast.Compare) -> Tuple:
     """
     Unpack a chained compare operation into its two
     constituent parts.
@@ -134,7 +134,7 @@ def unpack_chained_compare_operation(compare: ast.Compare) -> Tuple:
     raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
 
 
-def unpack_compare(compare: ast.Compare) -> List[Tuple]:
+def process_compare(compare: ast.Compare) -> List[Tuple]:
     """
     Unpack a compare node into constraints.
 
@@ -142,10 +142,10 @@ def unpack_compare(compare: ast.Compare) -> List[Tuple]:
     n: int = len(compare.comparators)
 
     if n == 1:
-        return [unpack_single_compare_operation(compare)]
+        return [process_single_compare_operation(compare)]
 
     elif n == 2:
-        return unpack_chained_compare_operation(compare)
+        return process_chained_compare_operation(compare)
 
     else:
         raise ConstraintError(
@@ -158,13 +158,14 @@ def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
     """
     Visit and process each constraint in the tuple.
 
+    Each constraint can be either a compare operateration or a name.
     """
     constraints: List = []
 
     for node in constraint_tuple.elts:
 
         if isinstance(node, ast.Compare):
-            constraints += unpack_compare(node)
+            constraints += process_compare(node)
 
         elif isinstance(node, ast.Name):
             constraints += [(node.id,)]
@@ -175,26 +176,55 @@ def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
     return constraints
 
 
-def process_constraint_string(constraint_string: str) -> List[Tuple]:
+def process_boolop_node(boolop_node: ast.BoolOp) -> List[List[Tuple]]:
+    """
+    Disjunctions ('or') of tuples, comparisions or names are supported.
+
+    Boolean operations are not permitted within disjuncts.
+    """
+    disjunctions = []
+
+    for node in boolop_node.values:
+
+        if isinstance(node, ast.Tuple):
+            disjunctions += [process_constraints_in_tuple(node)]
+
+        elif isinstance(node, ast.Compare):
+            disjunctions += [process_compare(node)]
+
+        elif isinstance(node, ast.Name):
+            disjunctions += [[(node.id,)]]
+
+        else:
+            raise ConstraintError(f"Invalid constraint in disjunction at offset {node.col_offset}")
+
+    return disjunctions
+
+
+def process_constraint_string(constraint_string: str) -> List[List[Tuple]]:
     """
     Parse and process a string representing the collection constraints.
 
-    Currently, only conjunction of constraints is supported.
     Conjuncts must be expressed as a tuple and can be comparison
     operations or names.
 
     Single comparision operations and names are also permitted.
+
+    Disjunctions ('or') of tuples, comparisions or names are supported.
     """
     node = ast.parse(constraint_string).body[0].value
 
-    if isinstance(node, ast.Tuple):
-        return process_constraints_in_tuple(node)
+    if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.Or):
+        return process_boolop_node(node)
+
+    elif isinstance(node, ast.Tuple):
+        return [process_constraints_in_tuple(node)]
 
     elif isinstance(node, ast.Compare):
-        return unpack_compare(node)
+        return [process_compare(node)]
 
     elif isinstance(node, ast.Name):
-        return [(node.id,)]
+        return [[(node.id,)]]
 
     else:
         raise ConstraintError(f"Invalid constraint(s): {constraint_string}")

@@ -1,8 +1,11 @@
+import sys
+
 import click
 
 from ccc.multiset import MultisetCounter
 from ccc.util.constraints import process_constraint_string
 from ccc.util.collection import process_collection_string
+from ccc.util.misc import subsets
 
 
 @click.group()
@@ -29,9 +32,19 @@ def multisets(size, constraints, collection):
     if collection is not None:
         collection = process_collection_string(collection)
 
-    ms = MultisetCounter(size, constraints, collection)
+    if len(constraints) == 1:
+        ms = MultisetCounter(size, constraints[0], collection)
+        answer = ms.count()
 
-    answer = ms.count()
+    else:
+        if collection is None:
+            sys.exit("Must specify a collection if using 'or' in constraints")
+
+        answer = 0
+
+        for n, subset in subsets(constraints):
+            ms = MultisetCounter(size, subset, collection)
+            answer += (-1)**(n+1) * ms.count()
 
     click.echo(answer)
 
@@ -51,18 +64,16 @@ def draws(size, constraints, collection):
 
     collection = process_collection_string(collection)
 
-    ms = MultisetCounter(size, constraints, collection)
+    if len(constraints) == 1:
+        ms = MultisetCounter(size, constraints[0], collection)
+        answer = ms.draws()
+        click.echo(answer)
 
-    answer = ms.draws()
+    else:
+        answer = 0
 
-    click.echo(answer)
+        for n, subset in subsets(constraints):
+            ms = MultisetCounter(size, subset, collection)
+            answer += (-1)**(n+1) * ms.draws()
 
-
-@count.command()
-@click.option("--size", "-s", type=int, required=True)
-@click.option("--constraints", "-c", type=str)
-def permutations(size, constraints):
-    """
-    Count permutations
-    """
-    pass
+    click.echo("Not Implemented")
