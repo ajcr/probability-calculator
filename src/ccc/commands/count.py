@@ -77,13 +77,3 @@ def draws(size, constraints, collection):
             answer += (-1)**(n+1) * ms.draws()
 
     click.echo("Not Implemented")
-
-
-@count.command()
-@click.option("--size", "-s", type=int, required=True)
-@click.option("--constraints", "-c", type=str)
-def permutations(size, constraints):
-    """
-    Count permutations
-    """
-    pass
