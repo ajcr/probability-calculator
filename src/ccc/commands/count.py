@@ -67,7 +67,6 @@ def draws(size, constraints, collection):
     if len(constraints) == 1:
         ms = MultisetCounter(size, constraints[0], collection)
         answer = ms.draws()
-        click.echo(answer)
 
     else:
         answer = 0
@@ -76,4 +75,4 @@ def draws(size, constraints, collection):
             ms = MultisetCounter(size, subset, collection)
             answer += (-1)**(n+1) * ms.draws()
 
-    click.echo("Not Implemented")
+    click.echo(answer)
