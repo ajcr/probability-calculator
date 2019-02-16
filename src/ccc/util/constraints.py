@@ -32,7 +32,7 @@ REFLECT_ORDER_OPS = {
 }
 
 
-def process_single_compare_operation(compare: ast.Compare) -> Tuple:
+def process_single_compare_node(compare_node: ast.Compare) -> Tuple:
     """
     Unpack a compare operation into its constituent parts.
 
@@ -53,14 +53,14 @@ def process_single_compare_operation(compare: ast.Compare) -> Tuple:
         item % mod == rem
 
     """
-    op = compare.ops[0]
+    op = compare_node.ops[0]
 
     if type(op) in ORDER_OPS:
 
         # see if compare is of form 'item __op__ num'
 
         try:
-            return ORDER_OPS[type(op)], compare.left.id, compare.comparators[0].n
+            return ORDER_OPS[type(op)], compare_node.left.id, compare_node.comparators[0].n
 
         except (AttributeError, TypeError):
             pass
@@ -68,7 +68,7 @@ def process_single_compare_operation(compare: ast.Compare) -> Tuple:
         # see if compare is of form 'num __op__ item' (inequalities must be swapped)
 
         try:
-            return REFLECT_ORDER_OPS[type(op)], compare.comparators[0].id, compare.left.n
+            return REFLECT_ORDER_OPS[type(op)], compare_node.comparators[0].id, compare_node.left.n
 
         except (AttributeError, TypeError):
             pass
@@ -76,10 +76,10 @@ def process_single_compare_operation(compare: ast.Compare) -> Tuple:
         # see if compare is of form 'item % mod == rem'
 
         try:
-            if isinstance(compare.left.op, ast.Mod) and isinstance(compare.ops[0], ast.Eq):
-                item = compare.left.left.id
-                mod = compare.left.right.n
-                rem = compare.comparators[0].n
+            if isinstance(compare_node.left.op, ast.Mod) and isinstance(compare_node.ops[0], ast.Eq):
+                item = compare_node.left.left.id
+                mod = compare_node.left.right.n
+                rem = compare_node.comparators[0].n
                 return "mod", item, mod, rem
 
         except (AttributeError, TypeError):
@@ -91,18 +91,18 @@ def process_single_compare_operation(compare: ast.Compare) -> Tuple:
         # see if compare is of form 'item in (3, 5, 7)' or 'item not in (3, 5, 7)'
 
         try:
-            item = compare.left.id
-            nums = [num.n for num in compare.comparators[0].elts]
+            item = compare_node.left.id
+            nums = [num.n for num in compare_node.comparators[0].elts]
             return CONTAINS_OPS[type(op)], item, nums
 
         except (AttributeError, TypeError):
             # fall through to error
             pass
 
-    raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
+    raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
 
 
-def process_chained_compare_operation(compare: ast.Compare) -> Tuple:
+def process_chained_compare_node(compare_node: ast.Compare) -> Tuple:
     """
     Unpack a chained compare operation into its two
     constituent parts.
@@ -119,42 +119,42 @@ def process_chained_compare_operation(compare: ast.Compare) -> Tuple:
 
     N.B. the == and != operators are not permitted.
     """
-    op1, op2 = compare.ops
+    op1, op2 = compare_node.ops
 
     try:
         if {type(op1), type(op2)} < ORDER_OPS.keys() - EQUALITIES.keys():
             return [
-                (REFLECT_ORDER_OPS[type(op1)], compare.comparators[0].id, compare.left.n),
-                (ORDER_OPS[type(op2)], compare.comparators[0].id, compare.comparators[1].n),
+                (REFLECT_ORDER_OPS[type(op1)], compare_node.comparators[0].id, compare_node.left.n),
+                (ORDER_OPS[type(op2)], compare_node.comparators[0].id, compare_node.comparators[1].n),
             ]
 
     except (AttributeError, TypeError):
         pass
 
-    raise ConstraintError(f"Constraint starting at offset {compare.col_offset} not understood")
+    raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
 
 
-def process_compare(compare: ast.Compare) -> List[Tuple]:
+def process_compare_node(compare_node: ast.Compare) -> List[Tuple]:
     """
     Unpack a compare node into constraints.
 
     """
-    n: int = len(compare.comparators)
+    n: int = len(compare_node.comparators)
 
     if n == 1:
-        return [process_single_compare_operation(compare)]
+        return [process_single_compare_node(compare_node)]
 
     elif n == 2:
-        return process_chained_compare_operation(compare)
+        return process_chained_compare_node(compare_node)
 
     else:
         raise ConstraintError(
-            f"Constraint at offset {compare.col_offset} contains"
+            f"Constraint at offset {compare_node.col_offset} contains"
             " chained comparison longer than two"
         )
 
 
-def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
+def process_tuple_node(tuple_node: ast.Tuple) -> List[Tuple]:
     """
     Visit and process each constraint in the tuple.
 
@@ -162,10 +162,10 @@ def process_constraints_in_tuple(constraint_tuple: ast.Tuple) -> List[Tuple]:
     """
     constraints: List = []
 
-    for node in constraint_tuple.elts:
+    for node in tuple_node.elts:
 
         if isinstance(node, ast.Compare):
-            constraints += process_compare(node)
+            constraints += process_compare_node(node)
 
         elif isinstance(node, ast.Name):
             constraints += [(node.id,)]
@@ -187,10 +187,10 @@ def process_boolop_node(boolop_node: ast.BoolOp) -> List[List[Tuple]]:
     for node in boolop_node.values:
 
         if isinstance(node, ast.Tuple):
-            disjunctions += [process_constraints_in_tuple(node)]
+            disjunctions += [process_tuple_node(node)]
 
         elif isinstance(node, ast.Compare):
-            disjunctions += [process_compare(node)]
+            disjunctions += [process_compare_node(node)]
 
         elif isinstance(node, ast.Name):
             disjunctions += [[(node.id,)]]
@@ -218,10 +218,10 @@ def process_constraint_string(constraint_string: str) -> List[List[Tuple]]:
         return process_boolop_node(node)
 
     elif isinstance(node, ast.Tuple):
-        return [process_constraints_in_tuple(node)]
+        return [process_tuple_node(node)]
 
     elif isinstance(node, ast.Compare):
-        return [process_compare(node)]
+        return [process_compare_node(node)]
 
     elif isinstance(node, ast.Name):
         return [[(node.id,)]]

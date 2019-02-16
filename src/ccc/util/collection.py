@@ -29,7 +29,11 @@ def process_collection_string(collection_string: str) -> Dict[str, int]:
     """
     Parse and process a string with counts of items in the collection.
 
-        red = 3; blue = 7; yellow = 5
+        "red = 3; blue = 7; yellow = 5"
+
+    becomes:
+
+        {"red": 3, "blue": 7, "yellow": 5}
 
     """
     item_counts: Dict[str, int] = {}
