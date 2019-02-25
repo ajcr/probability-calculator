@@ -1,6 +1,6 @@
 import pytest
 
-from ccc.commands.count import multisets, draws
+from ccc.commands.count import multisets, draws, sequences
 
 
 @pytest.mark.parametrize("size,constraints,expected", [
@@ -13,4 +13,15 @@ from ccc.commands.count import multisets, draws
 ])
 def test_count_multisets(runner, size, constraints, expected):
     result = runner.invoke(multisets, ["--size", size, "--constraints", constraints])
+    assert result.output.rstrip() == str(expected)
+
+
+@pytest.mark.parametrize("size,constraints,expected", [
+    (4, "f == 1, o == 2, d == 1", 12),
+    # https://math.stackexchange.com/questions/960046
+    (3, "a <= 2, b <= 3", 7),
+    (3, "m <= 1, p <= 2, i <= 4, s <= 4", 53),
+])
+def test_count_sequences(runner, size, constraints, expected):
+    result = runner.invoke(sequences, ["--size", size, "--constraints", constraints])
     assert result.output.rstrip() == str(expected)

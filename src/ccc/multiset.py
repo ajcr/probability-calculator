@@ -1,6 +1,6 @@
 from typing import Collection, Dict, List, Optional, Set, Tuple
 
-from sympy import Poly, Rational, prod, binomial
+from sympy import Poly, Rational, prod, binomial, factorial
 from sympy.abc import x
 
 from ccc.errors import ConstraintNotImplementedError
@@ -34,6 +34,22 @@ def degrees_to_polynomial(degrees: Set[int]) -> Poly:
     """
     degrees_dict = dict.fromkeys(degrees, 1)
     return Poly.from_dict(degrees_dict, x)
+
+
+def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly:
+    """
+    For each degree in a set, create the polynomial with those
+    terms with degree d having coefficient binomial(n, d):
+
+        {0, 2, 5} -> bin(n, 5)*x**5 + bin(n, 2)*x**2 + 1
+
+    """
+    degree_coeff_dict = {}
+
+    for degree in degrees:
+        degree_coeff_dict[degree] = binomial(n, degree)
+
+    return Poly.from_dict(degree_coeff_dict, x)
 
 
 def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly:
@@ -195,3 +211,12 @@ class MultisetCounter:
 
         """
         return self.draws() / binomial(self.total_items_in_collection(), self._max_degree)
+
+    def sequence_count(self) -> int:
+        """
+        Number of possible distinct sequences
+        """
+        # multiply polynomials with fewer terms first
+        degree_sets = sorted(self._degrees.values(), key=len)
+        poly = prod(degrees_to_polynomial_with_factorial_coeff(degrees) for degrees in degree_sets)
+        return poly.coeff_monomial(x ** self._max_degree) * factorial(self._max_degree)
