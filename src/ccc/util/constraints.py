@@ -212,7 +212,17 @@ def process_constraint_string(constraint_string: str) -> List[List[Tuple]]:
 
     Disjunctions ('or') of tuples, comparisions or names are supported.
     """
-    node = ast.parse(constraint_string).body[0].value
+    try:
+        body = ast.parse(constraint_string).body
+
+    except SyntaxError:
+        raise ConstraintError("Invalid syntax in constraint string") from None
+
+    if body:
+        node = body[0].value
+
+    else:
+        raise ConstraintError("Empty constraint string")
 
     if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.Or):
         return process_boolop_node(node)
