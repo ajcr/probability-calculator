@@ -76,3 +76,35 @@ def draws(size, constraints, collection):
             answer += (-1)**(n+1) * ms.draws()
 
     click.echo(answer)
+
+
+@count.command()
+@click.option("--size", "-s", type=int, required=True)
+@click.option("--constraints", "-c", type=str)
+@click.option("--collection", "-k", type=str)
+def sequences(size, constraints, collection):
+    """
+    Number of possible sequences of the specified size
+    that optionally meet one or more contraints.
+    """
+    if constraints is not None:
+        constraints = process_constraint_string(constraints)
+
+    if collection is not None:
+        collection = process_collection_string(collection)
+
+    if len(constraints) == 1:
+        ms = MultisetCounter(size, constraints[0], collection)
+        answer = ms.sequence_count()
+
+    else:
+        if collection is None:
+            sys.exit("Must specify a collection if using 'or' in constraints")
+
+        answer = 0
+
+        for n, subset in subsets(constraints):
+            ms = MultisetCounter(size, subset, collection)
+            answer += (-1)**(n+1) * ms.sequence_count()
+
+    click.echo(answer)
