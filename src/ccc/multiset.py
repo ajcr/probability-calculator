@@ -52,18 +52,18 @@ def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly
     return Poly.from_dict(degree_coeff_dict, x)
 
 
-def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly:
+def degrees_to_polynomial_with_factorial_coeff(degrees: Set[int]) -> Poly:
     """
     For each degree in a set, create the polynomial with those
-    terms with degree d having coefficient binomial(n, d):
+    terms with degree d having coefficient 1/n!:
 
-        {0, 2, 5} -> bin(n, 5)*x**5 + bin(n, 2)*x**2 + 1
+        {0, 2, 5} -> x**5 / 5! + x**2 / 2!  + 1 / 1!
 
     """
     degree_coeff_dict = {}
 
     for degree in degrees:
-        degree_coeff_dict[degree] = binomial(n, degree)
+        degree_coeff_dict[degree] = 1 / factorial(degree)
 
     return Poly.from_dict(degree_coeff_dict, x)
 
