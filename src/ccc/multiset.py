@@ -6,68 +6,6 @@ from sympy.abc import x
 from ccc.errors import ConstraintNotImplementedError
 
 
-def _constraint_items_missing_from_collection(
-    constraints: List[Tuple],
-    collection: Dict[str, int]
-) -> Set[str]:
-    """
-    Determine the constrained items that are not specified
-    in the collection.
-
-    """
-    constrained_items = set()
-
-    for constraint in constraints:
-        if len(constraint) > 1:
-            constrained_items.add(constraint[1])
-
-    return sorted(constrained_items - collection.keys())
-
-
-def degrees_to_polynomial(degrees: Set[int]) -> Poly:
-    """
-    For each degree in a set, create the polynomial with those
-    terms having coefficient 1 (and all other terms zero), e.g.:
-
-        {0, 2, 5} -> x**5 + x**2 + 1
-
-    """
-    degrees_dict = dict.fromkeys(degrees, 1)
-    return Poly.from_dict(degrees_dict, x)
-
-
-def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly:
-    """
-    For each degree in a set, create the polynomial with those
-    terms with degree d having coefficient binomial(n, d):
-
-        {0, 2, 5} -> bin(n, 5)*x**5 + bin(n, 2)*x**2 + 1
-
-    """
-    degree_coeff_dict = {}
-
-    for degree in degrees:
-        degree_coeff_dict[degree] = binomial(n, degree)
-
-    return Poly.from_dict(degree_coeff_dict, x)
-
-
-def degrees_to_polynomial_with_factorial_coeff(degrees: Set[int]) -> Poly:
-    """
-    For each degree in a set, create the polynomial with those
-    terms with degree d having coefficient 1/n!:
-
-        {0, 2, 5} -> x**5 / 5! + x**2 / 2!  + 1 / 1!
-
-    """
-    degree_coeff_dict = {}
-
-    for degree in degrees:
-        degree_coeff_dict[degree] = 1 / factorial(degree)
-
-    return Poly.from_dict(degree_coeff_dict, x)
-
-
 class MultisetCounter:
     """
     Count multisets of a given size that meet constraints.
@@ -220,3 +158,65 @@ class MultisetCounter:
         degree_sets = sorted(self._degrees.values(), key=len)
         poly = prod(degrees_to_polynomial_with_factorial_coeff(degrees) for degrees in degree_sets)
         return poly.coeff_monomial(x ** self._max_degree) * factorial(self._max_degree)
+
+
+def _constraint_items_missing_from_collection(
+    constraints: List[Tuple],
+    collection: Dict[str, int]
+) -> Set[str]:
+    """
+    Determine the constrained items that are not specified
+    in the collection.
+
+    """
+    constrained_items = set()
+
+    for constraint in constraints:
+        if len(constraint) > 1:
+            constrained_items.add(constraint[1])
+
+    return sorted(constrained_items - collection.keys())
+
+
+def degrees_to_polynomial(degrees: Set[int]) -> Poly:
+    """
+    For each degree in a set, create the polynomial with those
+    terms having coefficient 1 (and all other terms zero), e.g.:
+
+        {0, 2, 5} -> x**5 + x**2 + 1
+
+    """
+    degrees_dict = dict.fromkeys(degrees, 1)
+    return Poly.from_dict(degrees_dict, x)
+
+
+def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly:
+    """
+    For each degree in a set, create the polynomial with those
+    terms with degree d having coefficient binomial(n, d):
+
+        {0, 2, 5} -> bin(n, 5)*x**5 + bin(n, 2)*x**2 + 1
+
+    """
+    degree_coeff_dict = {}
+
+    for degree in degrees:
+        degree_coeff_dict[degree] = binomial(n, degree)
+
+    return Poly.from_dict(degree_coeff_dict, x)
+
+
+def degrees_to_polynomial_with_factorial_coeff(degrees: Set[int]) -> Poly:
+    """
+    For each degree in a set, create the polynomial with those
+    terms with degree d having coefficient 1/n!:
+
+        {0, 2, 5} -> x**5 / 5! + x**2 / 2!  + 1 / 1!
+
+    """
+    degree_coeff_dict = {}
+
+    for degree in degrees:
+        degree_coeff_dict[degree] = 1 / factorial(degree)
+
+    return Poly.from_dict(degree_coeff_dict, x)

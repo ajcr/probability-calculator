@@ -1,6 +1,6 @@
 import pytest
 
-from ccc.commands.probability import draw
+from ccc.commands.probability import draw, permutation
 
 
 @pytest.mark.parametrize("size,constraints,collection,expected", [
@@ -17,3 +17,12 @@ from ccc.commands.probability import draw
 def test_count_multisets(runner, size, constraints, collection, expected):
     result = runner.invoke(draw, ["--size", size, "--constraints", constraints, "--collection", collection])
     assert result.output.rstrip() == expected
+
+
+@pytest.mark.parametrize("sequence,constraints,expected", [
+    ("food", "no_adjacent", "1/2"),
+    ("food", "derangement", "1/6"),
+])
+def test_count_permutations(runner, sequence, constraints, expected):
+    result = runner.invoke(permutation, [sequence, "--constraints", constraints])
+    assert result.output.rstrip() == str(expected)

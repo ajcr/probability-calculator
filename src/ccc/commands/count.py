@@ -3,6 +3,7 @@ import sys
 import click
 
 from ccc.multiset import MultisetCounter
+from ccc.permutation import PermutationCounter
 from ccc.util.constraints import process_constraint_string
 from ccc.util.collection import process_collection_string
 from ccc.util.misc import subsets
@@ -106,5 +107,28 @@ def sequences(size, constraints, collection):
         for n, subset in subsets(constraints):
             ms = MultisetCounter(size, subset, collection)
             answer += (-1)**(n+1) * ms.sequence_count()
+
+    click.echo(answer)
+
+
+@count.command()
+@click.argument("sequence")
+@click.option("--constraints", "-c", type=str)
+def permutations(sequence, constraints):
+    """
+    Number of possible permutations of the sequence that
+    that optionally meet a specified contraint.
+    """
+    if constraints is not None:
+
+        constraints = process_constraint_string(constraints)
+
+        if len(constraints) > 1:
+            sys.exit("Using 'or' is not supported for permutations")
+
+        constraints = constraints[0]
+
+    permutation = PermutationCounter(sequence, constraints)
+    answer = permutation.count()
 
     click.echo(answer)
