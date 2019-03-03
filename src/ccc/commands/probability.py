@@ -4,6 +4,7 @@ from typing import List, Dict, Tuple
 import click
 
 from ccc.multiset import MultisetCounter
+from ccc.permutation import PermutationCounter
 from ccc.util.constraints import process_constraint_string
 from ccc.util.collection import process_collection_string
 from ccc.util.misc import subsets
@@ -12,7 +13,7 @@ from ccc.util.misc import subsets
 @click.group()
 def probability() -> None:
     """
-    Count the number of object that match the given constraints.
+    Compute the probability that a specified collection is seen.
 
     """
     pass
@@ -44,6 +45,31 @@ def draw(size, constraints, collection, rational) -> None:
         for n, subset in subsets(constraints):
             ms = MultisetCounter(size, subset, collection)
             answer += (-1)**(n+1) * ms.draw_probability()
+
+    if rational:
+        click.echo(answer)
+    else:
+        click.echo(float(answer))
+
+
+@probability.command()
+@click.argument("sequence")
+@click.option("--constraints", "-c", type=str, required=True)
+@click.option("--rational/--float", default=True)
+def permutation(sequence, constraints, rational):
+    """
+    Probability that a random permutation of the sequence
+    meets a specified contraint.
+    """
+    constraints = process_constraint_string(constraints)
+
+    if len(constraints) > 1:
+        sys.exit("Using 'or' is not supported for permutations")
+
+    constraints = constraints[0]
+
+    permutation = PermutationCounter(sequence, constraints)
+    answer = permutation.probability()
 
     if rational:
         click.echo(answer)

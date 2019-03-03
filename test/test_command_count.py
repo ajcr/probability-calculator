@@ -1,6 +1,6 @@
 import pytest
 
-from ccc.commands.count import multisets, draws, sequences
+from ccc.commands.count import multisets, sequences, permutations
 
 
 @pytest.mark.parametrize("size,constraints,expected", [
@@ -24,4 +24,18 @@ def test_count_multisets(runner, size, constraints, expected):
 ])
 def test_count_sequences(runner, size, constraints, expected):
     result = runner.invoke(sequences, ["--size", size, "--constraints", constraints])
+    assert result.output.rstrip() == str(expected)
+
+
+@pytest.mark.parametrize("sequence,constraints,expected", [
+    ("food", None, 12),
+    ("food", "no_adjacent", 6),
+    ("food", "derangement", 2),
+    ("mississippi", "no_adjacent", 2016),
+])
+def test_count_permutations(runner, sequence, constraints, expected):
+    if constraints is None:
+        result = runner.invoke(permutations, [sequence])
+    else:
+        result = runner.invoke(permutations, [sequence, "--constraints", constraints])
     assert result.output.rstrip() == str(expected)
