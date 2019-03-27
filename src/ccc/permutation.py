@@ -16,12 +16,18 @@ class PermutationCounter:
         self,
         sequence: Sequence[Hashable],
         constraints: Optional[List[Tuple]] = None,
+        same_distinct: bool = False,
     ) -> None:
 
-        self.frequencies: Counter = Counter(sequence)
+        self.sequence: Sequence[Hashable] = sequence
         self.length: int = len(sequence)
+        self.frequencies: Counter = Counter(sequence)
+
         self.constraints: List[Tuple] = constraints
         self.polynomials: Dict[Hashable, Poly] = {}
+
+        self.same_distinct: bool = same_distinct
+        self._correction_factor: int = 1
 
         if not constraints:
             pass
@@ -31,7 +37,9 @@ class PermutationCounter:
             getattr(self, "impose_constraint_" + op)(*args)
 
         else:
-            raise ConstraintNotImplementedError("Imposing multiple constraints is not supported")
+            raise ConstraintNotImplementedError(
+                "Imposing multiple constraints is not supported for permuations"
+            )
 
     def impose_constraint_derangement(self) -> None:
         """
@@ -45,6 +53,9 @@ class PermutationCounter:
         """
         for item, count in self.frequencies.items():
             self.polynomials[item] = laguerre(count, x)
+
+        if self.same_distinct:
+            self._correction_factor = prod(factorial(freq) for freq in self.frequencies.values())
 
     def impose_constraint_no_adjacent(self) -> None:
         """
@@ -60,6 +71,9 @@ class PermutationCounter:
         for item, count in self.frequencies.items():
             self.polynomials[item] = assoc_laguerre(count, -1, x)
 
+        if self.same_distinct:
+            self._correction_factor = prod(factorial(freq) for freq in self.frequencies.values())
+
     def count_unconstrained_permutations(self) -> int:
         """
         Number of permutations where no constraint is specified.
@@ -69,8 +83,16 @@ class PermutationCounter:
 
             len(sequence)! / a! / b! / ... /n!
 
+        If instances of the same symbol are considered distinct, then
+        the number of permutations is equal to:
+
+            len(sequence)!
+
         """
-        return factorial(self.length) / prod(factorial(a) for a in self.frequencies.values())
+        if self.same_distinct:
+            return factorial(self.length)
+        else:
+            return factorial(self.length) / prod(factorial(freq) for freq in self.frequencies.values())
 
     def probability(self) -> Rational:
         """
@@ -89,7 +111,7 @@ class PermutationCounter:
 
         else:
             terms = prod(self.polynomials.values()).apart().as_ordered_terms()
-            return abs(sum(eval_gamma(t) for t in terms))
+            return abs(sum(eval_gamma(t) for t in terms)) * self._correction_factor
 
 
 def eval_gamma(term):

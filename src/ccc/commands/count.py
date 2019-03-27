@@ -114,7 +114,8 @@ def sequences(size, constraints, collection):
 @count.command()
 @click.argument("sequence")
 @click.option("--constraints", "-c", type=str)
-def permutations(sequence, constraints):
+@click.option("--same-distinct/--no-same-distinct", default=False)
+def permutations(sequence, constraints, same_distinct):
     """
     Number of possible permutations of the sequence that
     that optionally meet a specified contraint.
@@ -128,7 +129,7 @@ def permutations(sequence, constraints):
 
         constraints = constraints[0]
 
-    permutation = PermutationCounter(sequence, constraints)
+    permutation = PermutationCounter(sequence, constraints, same_distinct)
     answer = permutation.count()
 
     click.echo(answer)

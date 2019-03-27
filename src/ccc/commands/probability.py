@@ -55,8 +55,9 @@ def draw(size, constraints, collection, rational) -> None:
 @probability.command()
 @click.argument("sequence")
 @click.option("--constraints", "-c", type=str, required=True)
+@click.option("--same-distinct/--no-same-distinct", default=False)
 @click.option("--rational/--float", default=True)
-def permutation(sequence, constraints, rational):
+def permutation(sequence, constraints, same_distinct, rational):
     """
     Probability that a random permutation of the sequence
     meets a specified contraint.
@@ -68,7 +69,7 @@ def permutation(sequence, constraints, rational):
 
     constraints = constraints[0]
 
-    permutation = PermutationCounter(sequence, constraints)
+    permutation = PermutationCounter(sequence, constraints, same_distinct)
     answer = permutation.probability()
 
     if rational:

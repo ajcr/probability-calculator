@@ -27,15 +27,49 @@ def test_count_sequences(runner, size, constraints, expected):
     assert result.output.rstrip() == str(expected)
 
 
-@pytest.mark.parametrize("sequence,constraints,expected", [
-    ("food", None, 12),
-    ("food", "no_adjacent", 6),
-    ("food", "derangement", 2),
-    ("mississippi", "no_adjacent", 2016),
+@pytest.mark.parametrize("sequence,expected,expected_if_same_distinct", [
+    ("a", 1, 1),
+    ("aa", 1, 2),
+    ("ab", 2, 2),
+    ("food", 12, 24),
+    ("abc", 6, 6),
 ])
-def test_count_permutations(runner, sequence, constraints, expected):
-    if constraints is None:
-        result = runner.invoke(permutations, [sequence])
-    else:
-        result = runner.invoke(permutations, [sequence, "--constraints", constraints])
+def test_count_permutations_no_constraints(runner, sequence, expected, expected_if_same_distinct):
+    result = runner.invoke(permutations, [sequence])
     assert result.output.rstrip() == str(expected)
+    result = runner.invoke(permutations, [sequence, "--same-distinct"])
+    assert result.output.rstrip() == str(expected_if_same_distinct)
+
+
+@pytest.mark.parametrize("sequence,expected,expected_if_same_distinct", [
+    ("a", 1, 1),
+    ("aa", 0, 0),
+    ("aab", 1, 2),
+    ("aabb", 2, 8),
+    ("food", 6, 12),
+    ("mississippi", 2016, 2322432),
+    # https://www.quora.com/In-how-many-cases-there-will-be-no-two-people-of-the-same-nationality-sitting-next-to-each-other
+    ("aaabbbccc", 174, 37584)
+])
+def test_count_permutations_no_adjacent(runner, sequence, expected, expected_if_same_distinct):
+    result = runner.invoke(permutations, [sequence, "--constraints", "no_adjacent"])
+    assert result.output.rstrip() == str(expected)
+    result = runner.invoke(permutations, [sequence, "--constraints", "no_adjacent", "--same-distinct"])
+    assert result.output.rstrip() == str(expected_if_same_distinct)
+
+
+@pytest.mark.parametrize("sequence,expected,expected_if_same_distinct", [
+    ("a", 0, 0),
+    ("ab", 1, 1),
+    ("abb", 0, 0),
+    ("aabb", 1, 4),
+    ("aaabb", 0, 0),
+    ("abbc", 2, 4),
+    # https://math.stackexchange.com/questions/73341/whats-the-general-expression-for-probability-of-a-failed-gift-exchange-draw
+    ("aabbccddee", 13756, 440192),
+])
+def test_count_permutations_derangement(runner, sequence, expected, expected_if_same_distinct):
+    result = runner.invoke(permutations, [sequence, "--constraints", "derangement"])
+    assert result.output.rstrip() == str(expected)
+    result = runner.invoke(permutations, [sequence, "--constraints", "derangement", "--same-distinct"])
+    assert result.output.rstrip() == str(expected_if_same_distinct)
