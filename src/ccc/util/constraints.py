@@ -5,29 +5,17 @@ from ccc.errors import ConstraintError
 
 # Mappings for ast node classes to strings
 
-CONTAINS_OPS = {
-    ast.In: "in",
-    ast.NotIn: "not_in",
-}
+CONTAINS_OPS = {ast.In: "in", ast.NotIn: "not_in"}
 
-EQUALITIES = {
-    ast.Eq: "eq",
-    ast.NotEq: "ne",
-}
+EQUALITIES = {ast.Eq: "eq", ast.NotEq: "ne"}
 
-ORDER_OPS = {
-    ast.Lt: 'lt',
-    ast.LtE: 'le',
-    ast.Gt: 'gt',
-    ast.GtE: 'ge',
-    **EQUALITIES,
-}
+ORDER_OPS = {ast.Lt: "lt", ast.LtE: "le", ast.Gt: "gt", ast.GtE: "ge", **EQUALITIES}
 
 REFLECT_ORDER_OPS = {
-    ast.Lt: 'gt',
-    ast.LtE: 'ge',
-    ast.Gt: 'lt',
-    ast.GtE: 'le',
+    ast.Lt: "gt",
+    ast.LtE: "ge",
+    ast.Gt: "lt",
+    ast.GtE: "le",
     **EQUALITIES,
 }
 
@@ -60,7 +48,11 @@ def process_single_compare_node(compare_node: ast.Compare) -> Tuple:
         # see if compare is of form 'item __op__ num'
 
         try:
-            return ORDER_OPS[type(op)], compare_node.left.id, compare_node.comparators[0].n
+            return (
+                ORDER_OPS[type(op)],
+                compare_node.left.id,
+                compare_node.comparators[0].n,
+            )
 
         except (AttributeError, TypeError):
             pass
@@ -68,7 +60,11 @@ def process_single_compare_node(compare_node: ast.Compare) -> Tuple:
         # see if compare is of form 'num __op__ item' (inequalities must be swapped)
 
         try:
-            return REFLECT_ORDER_OPS[type(op)], compare_node.comparators[0].id, compare_node.left.n
+            return (
+                REFLECT_ORDER_OPS[type(op)],
+                compare_node.comparators[0].id,
+                compare_node.left.n,
+            )
 
         except (AttributeError, TypeError):
             pass
@@ -76,7 +72,9 @@ def process_single_compare_node(compare_node: ast.Compare) -> Tuple:
         # see if compare is of form 'item % mod == rem'
 
         try:
-            if isinstance(compare_node.left.op, ast.Mod) and isinstance(compare_node.ops[0], ast.Eq):
+            if isinstance(compare_node.left.op, ast.Mod) and isinstance(
+                compare_node.ops[0], ast.Eq
+            ):
                 item = compare_node.left.left.id
                 mod = compare_node.left.right.n
                 rem = compare_node.comparators[0].n
@@ -99,7 +97,9 @@ def process_single_compare_node(compare_node: ast.Compare) -> Tuple:
             # fall through to error
             pass
 
-    raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
+    raise ConstraintError(
+        f"Constraint starting at offset {compare_node.col_offset} not understood"
+    )
 
 
 def process_chained_compare_node(compare_node: ast.Compare) -> Tuple:
@@ -124,14 +124,24 @@ def process_chained_compare_node(compare_node: ast.Compare) -> Tuple:
     try:
         if {type(op1), type(op2)} < ORDER_OPS.keys() - EQUALITIES.keys():
             return [
-                (REFLECT_ORDER_OPS[type(op1)], compare_node.comparators[0].id, compare_node.left.n),
-                (ORDER_OPS[type(op2)], compare_node.comparators[0].id, compare_node.comparators[1].n),
+                (
+                    REFLECT_ORDER_OPS[type(op1)],
+                    compare_node.comparators[0].id,
+                    compare_node.left.n,
+                ),
+                (
+                    ORDER_OPS[type(op2)],
+                    compare_node.comparators[0].id,
+                    compare_node.comparators[1].n,
+                ),
             ]
 
     except (AttributeError, TypeError):
         pass
 
-    raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
+    raise ConstraintError(
+        f"Constraint starting at offset {compare_node.col_offset} not understood"
+    )
 
 
 def process_compare_node(compare_node: ast.Compare) -> List[Tuple]:
@@ -171,7 +181,9 @@ def process_tuple_node(tuple_node: ast.Tuple) -> List[Tuple]:
             constraints += [(node.id,)]
 
         else:
-            raise ConstraintError(f"Unknown constraint in tuple at offset {node.col_offset}")
+            raise ConstraintError(
+                f"Unknown constraint in tuple at offset {node.col_offset}"
+            )
 
     return constraints
 
@@ -196,7 +208,9 @@ def process_boolop_node(boolop_node: ast.BoolOp) -> List[List[Tuple]]:
             disjunctions += [[(node.id,)]]
 
         else:
-            raise ConstraintError(f"Invalid constraint in disjunction at offset {node.col_offset}")
+            raise ConstraintError(
+                f"Invalid constraint in disjunction at offset {node.col_offset}"
+            )
 
     return disjunctions
 

@@ -16,6 +16,7 @@ class MultisetCounter:
     term with the specified degree.
 
     """
+
     def __init__(
         self,
         size: int,
@@ -48,7 +49,8 @@ class MultisetCounter:
                     getattr(self, "impose_constraint_" + op)(*args)
                 except AttributeError:
                     raise ConstraintNotImplementedError(
-                        f"Constraint '{op}' is not implemented") from None
+                        f"Constraint '{op}' is not implemented"
+                    ) from None
 
         # add items from the collection that were not constrained
 
@@ -133,7 +135,9 @@ class MultisetCounter:
 
             for item, degrees in self._degrees.items():
 
-                p = degrees_to_polynomial_with_binomial_coeff(degrees, self._collection[item])
+                p = degrees_to_polynomial_with_binomial_coeff(
+                    degrees, self._collection[item]
+                )
                 polys.append(p)
 
             poly = prod(polys)
@@ -148,7 +152,9 @@ class MultisetCounter:
         (without replacement).
 
         """
-        return self.draws() / binomial(self.total_items_in_collection(), self._max_degree)
+        return self.draws() / binomial(
+            self.total_items_in_collection(), self._max_degree
+        )
 
     def sequence_count(self) -> int:
         """
@@ -156,13 +162,15 @@ class MultisetCounter:
         """
         # multiply polynomials with fewer terms first
         degree_sets = sorted(self._degrees.values(), key=len)
-        poly = prod(degrees_to_polynomial_with_factorial_coeff(degrees) for degrees in degree_sets)
+        poly = prod(
+            degrees_to_polynomial_with_factorial_coeff(degrees)
+            for degrees in degree_sets
+        )
         return poly.coeff_monomial(x ** self._max_degree) * factorial(self._max_degree)
 
 
 def _constraint_items_missing_from_collection(
-    constraints: List[Tuple],
-    collection: Dict[str, int]
+    constraints: List[Tuple], collection: Dict[str, int]
 ) -> Set[str]:
     """
     Determine the constrained items that are not specified

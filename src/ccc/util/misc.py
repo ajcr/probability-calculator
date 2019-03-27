@@ -1,7 +1,8 @@
 from itertools import chain, combinations
 from typing import List, Sequence, Generator, TypeVar, Tuple
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def subsets(seq: Sequence[Sequence[T]]) -> Generator[Tuple[int, List[T]], None, None]:
     """

@@ -12,6 +12,7 @@ class PermutationCounter:
     Count constrained permutations of a sequence.
 
     """
+
     def __init__(
         self,
         sequence: Sequence[Hashable],
@@ -55,7 +56,9 @@ class PermutationCounter:
             self.polynomials[item] = laguerre(count, x)
 
         if self.same_distinct:
-            self._correction_factor = prod(factorial(freq) for freq in self.frequencies.values())
+            self._correction_factor = prod(
+                factorial(freq) for freq in self.frequencies.values()
+            )
 
     def impose_constraint_no_adjacent(self) -> None:
         """
@@ -72,7 +75,9 @@ class PermutationCounter:
             self.polynomials[item] = assoc_laguerre(count, -1, x)
 
         if self.same_distinct:
-            self._correction_factor = prod(factorial(freq) for freq in self.frequencies.values())
+            self._correction_factor = prod(
+                factorial(freq) for freq in self.frequencies.values()
+            )
 
     def count_unconstrained_permutations(self) -> int:
         """
@@ -92,7 +97,9 @@ class PermutationCounter:
         if self.same_distinct:
             return factorial(self.length)
         else:
-            return factorial(self.length) / prod(factorial(freq) for freq in self.frequencies.values())
+            return factorial(self.length) / prod(
+                factorial(freq) for freq in self.frequencies.values()
+            )
 
     def probability(self) -> Rational:
         """
