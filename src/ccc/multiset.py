@@ -1,4 +1,4 @@
-from typing import Collection, Dict, List, Optional, Set, Tuple
+from typing import AbstractSet, Collection, Dict, List, MutableSet, Optional, Set, Tuple
 
 from sympy import Poly, Rational, prod, binomial, factorial
 from sympy.abc import x
@@ -30,7 +30,7 @@ class MultisetCounter:
         self._collection = collection
         self._max_degree = size
 
-        self._degrees: Dict[str, Collection[int]] = {}
+        self._degrees: Dict[str, MutableSet[int]] = {}
 
         # do not allow constraints on items that are not in the collection
 
@@ -114,6 +114,8 @@ class MultisetCounter:
         if self._collection is not None:
             return sum(self._collection.values())
 
+        return None
+
     def count(self) -> int:
         """
         Number of possible multisets.
@@ -171,7 +173,7 @@ class MultisetCounter:
 
 def _constraint_items_missing_from_collection(
     constraints: List[Tuple], collection: Dict[str, int]
-) -> Set[str]:
+) -> List[str]:
     """
     Determine the constrained items that are not specified
     in the collection.
@@ -186,7 +188,7 @@ def _constraint_items_missing_from_collection(
     return sorted(constrained_items - collection.keys())
 
 
-def degrees_to_polynomial(degrees: Set[int]) -> Poly:
+def degrees_to_polynomial(degrees: AbstractSet[int]) -> Poly:
     """
     For each degree in a set, create the polynomial with those
     terms having coefficient 1 (and all other terms zero), e.g.:
@@ -198,7 +200,7 @@ def degrees_to_polynomial(degrees: Set[int]) -> Poly:
     return Poly.from_dict(degrees_dict, x)
 
 
-def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly:
+def degrees_to_polynomial_with_binomial_coeff(degrees: AbstractSet[int], n: int) -> Poly:
     """
     For each degree in a set, create the polynomial with those
     terms with degree d having coefficient binomial(n, d):
@@ -214,7 +216,7 @@ def degrees_to_polynomial_with_binomial_coeff(degrees: Set[int], n: int) -> Poly
     return Poly.from_dict(degree_coeff_dict, x)
 
 
-def degrees_to_polynomial_with_factorial_coeff(degrees: Set[int]) -> Poly:
+def degrees_to_polynomial_with_factorial_coeff(degrees: AbstractSet[int]) -> Poly:
     """
     For each degree in a set, create the polynomial with those
     terms with degree d having coefficient 1/n!:
