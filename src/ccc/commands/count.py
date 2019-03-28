@@ -45,7 +45,7 @@ def multisets(size, constraints, collection):
 
         for n, subset in subsets(constraints):
             ms = MultisetCounter(size, subset, collection)
-            answer += (-1)**(n+1) * ms.count()
+            answer += (-1) ** (n + 1) * ms.count()
 
     click.echo(answer)
 
@@ -74,7 +74,7 @@ def draws(size, constraints, collection):
 
         for n, subset in subsets(constraints):
             ms = MultisetCounter(size, subset, collection)
-            answer += (-1)**(n+1) * ms.draws()
+            answer += (-1) ** (n + 1) * ms.draws()
 
     click.echo(answer)
 
@@ -106,7 +106,7 @@ def sequences(size, constraints, collection):
 
         for n, subset in subsets(constraints):
             ms = MultisetCounter(size, subset, collection)
-            answer += (-1)**(n+1) * ms.sequence_count()
+            answer += (-1) ** (n + 1) * ms.sequence_count()
 
     click.echo(answer)
 

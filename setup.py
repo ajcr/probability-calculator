@@ -5,7 +5,7 @@ setup(
     version="0.1.0",
     description="ccc: command-line combinatorial calculator",
     author="Alex Riley",
-    python_requires='>=3.5.0',
+    python_requires='>=3.6.0',
     packages=find_packages('src'),
     package_dir={'':'src'},
     entry_points={

@@ -44,7 +44,7 @@ def draw(size, constraints, collection, rational) -> None:
 
         for n, subset in subsets(constraints):
             ms = MultisetCounter(size, subset, collection)
-            answer += (-1)**(n+1) * ms.draw_probability()
+            answer += (-1) ** (n + 1) * ms.draw_probability()
 
     if rational:
         click.echo(answer)
