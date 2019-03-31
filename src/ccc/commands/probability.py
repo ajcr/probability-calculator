@@ -3,7 +3,7 @@ from typing import List, Dict, Tuple
 
 import click
 
-from ccc.multiset import MultisetCounter
+from ccc.draw import Draw
 from ccc.permutation import PermutationCounter
 from ccc.util.constraints import process_constraint_string
 from ccc.util.collection import process_collection_string
@@ -36,15 +36,15 @@ def draw(size, constraints, collection, rational) -> None:
     collection = process_collection_string(collection)
 
     if len(constraints) == 1:
-        ms = MultisetCounter(size, constraints[0], collection)
-        answer = ms.draw_probability()
+        draw = Draw(size, collection, constraints[0])
+        answer = draw.probability()
 
     else:
         answer = 0
 
         for n, subset in subsets(constraints):
-            ms = MultisetCounter(size, subset, collection)
-            answer += (-1) ** (n + 1) * ms.draw_probability()
+            draw = Draw(size, collection, subset)
+            answer += (-1) ** (n + 1) * draw.probability()
 
     if rational:
         click.echo(answer)

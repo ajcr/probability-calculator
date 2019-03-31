@@ -1,7 +1,7 @@
 import pytest
 import itertools
 
-from ccc.multiset import MultisetCounter
+from ccc.multiset import Multiset
 
 
 @pytest.mark.parametrize(
@@ -22,7 +22,7 @@ def test_single_contraint(constraint, expected_degrees):
     """
     Test the constraint produces the correct set of integers.
     """
-    ms = MultisetCounter(10, [constraint])
+    ms = Multiset(10, constraints=[constraint])
     assert ms._degrees == {"red": expected_degrees}
 
 
@@ -44,8 +44,8 @@ def test_constraint_application_is_idemptotent(constraint):
     """
     Test applying the same constraint again has no effect.
     """
-    ms_1 = MultisetCounter(10, [constraint])
-    ms_2 = MultisetCounter(10, [constraint] * 2)
+    ms_1 = Multiset(10, constraints=[constraint])
+    ms_2 = Multiset(10, constraints=[constraint] * 2)
     assert ms_1._degrees == ms_2._degrees
 
 
@@ -77,7 +77,7 @@ def test_multiple_constraints(constraints, expected_degrees):
     and any permutation of these constraints produces this result.
     """
     for constraint_perm in itertools.permutations(constraints):
-        ms = MultisetCounter(10, constraint_perm)
+        ms = Multiset(10, constraints=constraint_perm)
         assert ms._degrees == {"red": expected_degrees}
 
 
@@ -86,7 +86,7 @@ def test_no_constraints_with_collection():
     Test the correct set of integers in generated when
     passing a collection but no constraints.
     """
-    ms = MultisetCounter(10, None, {"red": 3, "blue": 2})
+    ms = Multiset(10, constraints=None, collection={"red": 3, "blue": 2})
     assert ms._degrees == {"red": {0, 1, 2, 3}, "blue": {0, 1, 2}}
 
 
@@ -103,6 +103,6 @@ def test_single_contraint_with_collection(constraint, expected_degrees):
     Test the constraint produces the correct set of integers
     when a collection is also specified.
     """
-    ms = MultisetCounter(8, [constraint], {"red": 8, "blue": 2})
+    ms = Multiset(8, constraints=[constraint], collection={"red": 8, "blue": 2})
     assert ms._degrees["red"] == expected_degrees
     assert ms._degrees["blue"] == {0, 1, 2}
