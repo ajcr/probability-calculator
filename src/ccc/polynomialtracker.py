@@ -1,5 +1,7 @@
 from typing import Optional, Collection, Dict, List, Tuple, MutableSet
 
+from ccc.errors import ConstraintNotImplementedError
+
 
 class PolynomialTracker:
     """
@@ -7,12 +9,14 @@ class PolynomialTracker:
     polynomials based on constraints.
 
     """
+
     def __init__(
         self,
         size: int,
         collection: Optional[Dict[str, int]] = None,
         constraints: Optional[List[Tuple]] = None,
     ) -> None:
+        self.size = size
         self._max_degree = size
         self._collection = collection
         self._constraints = constraints
@@ -37,8 +41,11 @@ class PolynomialTracker:
                     ) from None
 
         # add items from the collection that were not constrained
-        if collection is not None:
-            for item, count in collection.items():
+        self._add_unconstrained_items()
+
+    def _add_unconstrained_items(self) -> None:
+        if self._collection is not None:
+            for item, count in self._collection.items():
                 if item not in self._degrees:
                     self.impose_constraint_le(item, count)
 

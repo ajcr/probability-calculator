@@ -19,11 +19,42 @@ from ccc.commands.probability import draw, permutation
         (4, "(r==2, w==2) or (r==2, b==2) or (b==2, w==2)", "w=25;r=2;b=3", "401/9135"),
         # https://math.stackexchange.com/questions/334516
         (3, "r==3 or g==3 or b==3", "r=3; g=4; b=5", "3/44"),
+        # https://math.stackexchange.com/questions/2419834
+        (4, "blue == 0", "red = 3; blue = 1; yellow = 2", "1/3"),
     ],
 )
-def test_count_multisets(runner, size, constraints, collection, expected):
+def test_count_draws_no_replacement(runner, size, constraints, collection, expected):
     result = runner.invoke(
         draw, ["--size", size, "--constraints", constraints, "--collection", collection]
+    )
+    assert result.output.rstrip() == expected
+
+
+@pytest.mark.parametrize(
+    "size,constraints,collection,expected",
+    [
+        # https://math.stackexchange.com/questions/529254/probability-of-draw-with-replacement
+        (3, "red == 2, blue == 1", "red = 4; blue = 6", "36/125"),
+        # https://math.stackexchange.com/questions/2100892/probability-with-replacement-at-least-scenario
+        (4, "red >= 2", "red = 1; green = 5", "19/144"),
+        # https://math.stackexchange.com/questions/1540823/probabilty-of-drawing-atleast-1-red-ball-in-3-attempts
+        (3, "red >= 1", "red = 5; blue = 5; green = 5", "19/27"),
+        # https://math.stackexchange.com/questions/2419834
+        (4, "blue == 0", "red = 3; blue = 1; yellow = 2", "625/1296"),
+    ],
+)
+def test_count_draws_with_replacement(runner, size, constraints, collection, expected):
+    result = runner.invoke(
+        draw,
+        [
+            "--size",
+            size,
+            "--constraints",
+            constraints,
+            "--collection",
+            collection,
+            "--replace",
+        ],
     )
     assert result.output.rstrip() == expected
 

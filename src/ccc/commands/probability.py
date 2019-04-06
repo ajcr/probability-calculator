@@ -23,8 +23,9 @@ def probability() -> None:
 @click.option("--size", "-s", type=int, required=True)
 @click.option("--constraints", "-c", type=str)
 @click.option("--collection", "-k", type=str, required=True)
+@click.option("--replace/--no-replace", default=False)
 @click.option("--rational/--float", default=True)
-def draw(size, constraints, collection, rational) -> None:
+def draw(size, constraints, collection, rational, replace) -> None:
     """
     Probability of drawing (without replacement) a collection
     of the specified size from the specified collection that
@@ -36,14 +37,14 @@ def draw(size, constraints, collection, rational) -> None:
     collection = process_collection_string(collection)
 
     if len(constraints) == 1:
-        draw = Draw(size, collection, constraints[0])
+        draw = Draw(size, collection, constraints[0], replace=replace)
         answer = draw.probability()
 
     else:
         answer = 0
 
         for n, subset in subsets(constraints):
-            draw = Draw(size, collection, subset)
+            draw = Draw(size, collection, subset, replace=replace)
             answer += (-1) ** (n + 1) * draw.probability()
 
     if rational:

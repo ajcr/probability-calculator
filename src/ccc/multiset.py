@@ -11,6 +11,7 @@ class Multiset(PolynomialTracker):
     Track multisets that meet zero or more constraints.
 
     """
+
     def __init__(
         self,
         size: int,
@@ -27,7 +28,9 @@ class Multiset(PolynomialTracker):
         """
         Count number of possible multisets that meet constraints.
         """
-        poly = prod(degrees_to_polynomial(degrees) for degrees in self._degrees.values())
+        poly = prod(
+            degrees_to_polynomial(degrees) for degrees in self._degrees.values()
+        )
         return poly.coeff_monomial(x ** self._max_degree)
 
 

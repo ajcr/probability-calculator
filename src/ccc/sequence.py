@@ -11,6 +11,7 @@ class Sequence(PolynomialTracker):
     Track sequences that meet specific constraints.
 
     """
+
     def __init__(
         self,
         size: int,
