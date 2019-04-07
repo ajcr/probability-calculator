@@ -2,7 +2,9 @@ import sys
 
 import click
 
-from ccc.multiset import MultisetCounter
+from ccc.draw import Draw
+from ccc.multiset import Multiset
+from ccc.sequence import Sequence
 from ccc.permutation import PermutationCounter
 from ccc.util.constraints import process_constraint_string
 from ccc.util.collection import process_collection_string
@@ -34,7 +36,7 @@ def multisets(size, constraints, collection):
         collection = process_collection_string(collection)
 
     if len(constraints) == 1:
-        ms = MultisetCounter(size, constraints[0], collection)
+        ms = Multiset(size, collection, constraints[0])
         answer = ms.count()
 
     else:
@@ -44,7 +46,7 @@ def multisets(size, constraints, collection):
         answer = 0
 
         for n, subset in subsets(constraints):
-            ms = MultisetCounter(size, subset, collection)
+            ms = Multiset(size, collection, subset)
             answer += (-1) ** (n + 1) * ms.count()
 
     click.echo(answer)
@@ -66,15 +68,15 @@ def draws(size, constraints, collection):
     collection = process_collection_string(collection)
 
     if len(constraints) == 1:
-        ms = MultisetCounter(size, constraints[0], collection)
-        answer = ms.draws()
+        draw = Draw(size, collection, constraints[0])
+        answer = draw.count()
 
     else:
         answer = 0
 
         for n, subset in subsets(constraints):
-            ms = MultisetCounter(size, subset, collection)
-            answer += (-1) ** (n + 1) * ms.draws()
+            draw = Draw(size, collection, subset)
+            answer += (-1) ** (n + 1) * draw.count()
 
     click.echo(answer)
 
@@ -95,8 +97,8 @@ def sequences(size, constraints, collection):
         collection = process_collection_string(collection)
 
     if len(constraints) == 1:
-        ms = MultisetCounter(size, constraints[0], collection)
-        answer = ms.sequence_count()
+        seq = Sequence(size, collection, constraints[0])
+        answer = seq.count()
 
     else:
         if collection is None:
@@ -105,8 +107,8 @@ def sequences(size, constraints, collection):
         answer = 0
 
         for n, subset in subsets(constraints):
-            ms = MultisetCounter(size, subset, collection)
-            answer += (-1) ** (n + 1) * ms.sequence_count()
+            seq = Sequence(size, collection, subset)
+            answer += (-1) ** (n + 1) * seq.count()
 
     click.echo(answer)
 
