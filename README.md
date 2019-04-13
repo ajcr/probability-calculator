@@ -52,7 +52,7 @@ Here is an example:
 To solve this with ccc we can easily specify the *collection* we draw from, the *size* of the draw we make, and any *constraints* on the draw:
 
 ```
-ccc probability draw --collection "red = 3; black = 5; blue = 5" \
+ccc probability draw --from-collection "red = 3; black = 5; blue = 5" \
                      --size 4 \
                      --constraints "red == 0"
 ```
@@ -61,7 +61,7 @@ This puts the probability of winning (not drawing a red marble) at **42/143** (a
 What about if the marble is replaced after each draw? This can be specified using the `--replace` flag:
 
 ```
-ccc probability draw --collection "red = 3; black = 5; blue = 5" \
+ccc probability draw --from-collection "red = 3; black = 5; blue = 5" \
                      --size 4 \
                      --constraints "red == 0" \
                      --replace
@@ -85,7 +85,7 @@ In fact, we can specify much more complicated constraints on what we want to dra
 > What is you chance of winning the toy?
 
 ```
-ccc probability draw --collection "red = 3; black = 5; blue = 5; white = 2" \
+ccc probability draw --from-collection "red = 3; black = 5; blue = 5; white = 2" \
                      --size 5 \
                      --constraints "white >= 1, black >= 2, 1 <= blue <= 3"
 ```
@@ -105,7 +105,7 @@ Lastly, it is possible to use `or` (any number of times) in constraints:
 > What is the probability of winning the jackpot?
 
 ```
-ccc probability draw --collection "red = 3; black = 5; blue = 5; white = 2" \
+ccc probability draw --from-collection "red = 3; black = 5; blue = 5; white = 2" \
                      --size 3 \
                      --constraints "white == 2 or (red == 1, black == 1, blue == 1)"
 ```
