@@ -21,6 +21,22 @@ cd ccc
 python -m pip install .
 ```
 
+## Development install
+
+Clone the repo, create a virtual environment, install the development dependencies, install the module in editable mode, install pre-commit hooks:
+
+```
+git clone https://github.com/ajcr/ccc
+cd ccc
+python -m venv venv
+. venv/bin/activate
+python -m pip requirements-dev.txt
+python -m pip install -e .
+pre-commit install
+```
+
+Unit tests can be run with `pytest`. Pre-commit hooks will run on each git commit. The hooks can also be invoked with `pre-commit run -a`.
+
 ## Examples
 
 The easiest way to introduce ccc is to show various example calculations from the command-line.

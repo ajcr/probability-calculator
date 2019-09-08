@@ -13,7 +13,6 @@ def ccc():
     Count Constrained Collections.
 
     """
-    pass
 
 
 ccc.add_command(count)

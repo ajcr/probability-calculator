@@ -31,9 +31,9 @@ class PermutationCounter:
         self._correction_factor: int = 1
 
         if not constraints:
-            pass
+            return
 
-        elif len(constraints) == 1:
+        if len(constraints) == 1:
             op, *args = constraints[0]
             getattr(self, "impose_constraint_" + op)(*args)
 
@@ -56,9 +56,7 @@ class PermutationCounter:
             self.polynomials[item] = laguerre(count, x)
 
         if self.same_distinct:
-            self._correction_factor = prod(
-                factorial(freq) for freq in self.frequencies.values()
-            )
+            self._correction_factor = prod(factorial(freq) for freq in self.frequencies.values())
 
     def impose_constraint_no_adjacent(self) -> None:
         """
@@ -75,9 +73,7 @@ class PermutationCounter:
             self.polynomials[item] = assoc_laguerre(count, -1, x)
 
         if self.same_distinct:
-            self._correction_factor = prod(
-                factorial(freq) for freq in self.frequencies.values()
-            )
+            self._correction_factor = prod(factorial(freq) for freq in self.frequencies.values())
 
     def count_unconstrained_permutations(self) -> int:
         """
@@ -96,10 +92,8 @@ class PermutationCounter:
         """
         if self.same_distinct:
             return factorial(self.length)
-        else:
-            return factorial(self.length) / prod(
-                factorial(freq) for freq in self.frequencies.values()
-            )
+
+        return factorial(self.length) / prod(factorial(freq) for freq in self.frequencies.values())
 
     def probability(self) -> Rational:
         """
@@ -116,9 +110,8 @@ class PermutationCounter:
         if not self.constraints:
             return self.count_unconstrained_permutations()
 
-        else:
-            terms = prod(self.polynomials.values()).apart().as_ordered_terms()
-            return abs(sum(eval_gamma(t) for t in terms)) * self._correction_factor
+        terms = prod(self.polynomials.values()).apart().as_ordered_terms()
+        return abs(sum(eval_gamma(t) for t in terms)) * self._correction_factor
 
 
 def eval_gamma(term):

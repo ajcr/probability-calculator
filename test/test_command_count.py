@@ -11,11 +11,7 @@ from ccc.commands.count import multisets, sequences, permutations
         (6, "apple % 2 == 0, orange <= 4, pear in (0, 1), banana % 5 == 0", 7),
         (100, "apple % 2 == 0, orange <= 4, pear in (0, 1), banana % 5 == 0", 101),
         # https://projecteuler.net/problem=31
-        (
-            200,
-            "a%1==0, b%2==0, c%5==0, d%10==0, e%20==0, f%50==0, g%100==0, h%200==0",
-            73682,
-        ),
+        (200, "a%1==0, b%2==0, c%5==0, d%10==0, e%20==0, f%50==0, g%100==0, h%200==0", 73682),
     ],
 )
 def test_count_multisets(runner, size, constraints, expected):
@@ -41,9 +37,7 @@ def test_count_sequences(runner, size, constraints, expected):
     "sequence,expected,expected_if_same_distinct",
     [("a", 1, 1), ("aa", 1, 2), ("ab", 2, 2), ("food", 12, 24), ("abc", 6, 6)],
 )
-def test_count_permutations_no_constraints(
-    runner, sequence, expected, expected_if_same_distinct
-):
+def test_count_permutations_no_constraints(runner, sequence, expected, expected_if_same_distinct):
     result = runner.invoke(permutations, [sequence])
     assert result.output.rstrip() == str(expected)
     result = runner.invoke(permutations, [sequence, "--same-distinct"])
@@ -63,9 +57,7 @@ def test_count_permutations_no_constraints(
         ("aaabbbccc", 174, 37584),
     ],
 )
-def test_count_permutations_no_adjacent(
-    runner, sequence, expected, expected_if_same_distinct
-):
+def test_count_permutations_no_adjacent(runner, sequence, expected, expected_if_same_distinct):
     result = runner.invoke(permutations, [sequence, "--constraints", "no_adjacent"])
     assert result.output.rstrip() == str(expected)
     result = runner.invoke(
@@ -87,9 +79,7 @@ def test_count_permutations_no_adjacent(
         ("aabbccddee", 13756, 440192),
     ],
 )
-def test_count_permutations_derangement(
-    runner, sequence, expected, expected_if_same_distinct
-):
+def test_count_permutations_derangement(runner, sequence, expected, expected_if_same_distinct):
     result = runner.invoke(permutations, [sequence, "--constraints", "derangement"])
     assert result.output.rstrip() == str(expected)
     result = runner.invoke(

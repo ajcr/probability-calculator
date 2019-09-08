@@ -1,18 +1,13 @@
 import pytest
 
-from ccc.commands.probability import draw, permutation
+from ccc.commands.probability import draw_command, permutation_command
 
 
 @pytest.mark.parametrize(
     "size,constraints,collection,expected",
     [
         # https://math.stackexchange.com/questions/898683
-        (
-            8,
-            "r>=1,b>=1,g>=1,w>=1,bl>=1,gr>=1",
-            "r=5;b=5;g=5;w=5;bl=5;gr=5",
-            "5000/26013",
-        ),
+        (8, "r>=1,b>=1,g>=1,w>=1,bl>=1,gr>=1", "r=5;b=5;g=5;w=5;bl=5;gr=5", "5000/26013"),
         # https://math.stackexchange.com/questions/897730
         (6, "r >= 1, g >= 1", "r=10; g=10", "639/646"),
         # https://math.stackexchange.com/questions/2979053
@@ -25,7 +20,8 @@ from ccc.commands.probability import draw, permutation
 )
 def test_count_draws_no_replacement(runner, size, constraints, collection, expected):
     result = runner.invoke(
-        draw, ["--size", size, "--constraints", constraints, "--from-collection", collection]
+        draw_command,
+        ["--size", size, "--constraints", constraints, "--from-collection", collection],
     )
     assert result.output.rstrip() == expected
 
@@ -45,7 +41,7 @@ def test_count_draws_no_replacement(runner, size, constraints, collection, expec
 )
 def test_count_draws_with_replacement(runner, size, constraints, collection, expected):
     result = runner.invoke(
-        draw,
+        draw_command,
         [
             "--size",
             size,
@@ -64,7 +60,7 @@ def test_count_draws_with_replacement(runner, size, constraints, collection, exp
     [("food", "no_adjacent", "1/2"), ("food", "derangement", "1/6")],
 )
 def test_count_permutations(runner, sequence, constraints, expected):
-    result = runner.invoke(permutation, [sequence, "--constraints", constraints])
+    result = runner.invoke(permutation_command, [sequence, "--constraints", constraints])
     assert result.output.rstrip() == str(expected)
 
 
@@ -81,10 +77,10 @@ def test_count_permutations(runner, sequence, constraints, expected):
 def test_probability_permutations_no_adjacent(
     runner, sequence, expected, expected_if_same_distinct
 ):
-    result = runner.invoke(permutation, [sequence, "--constraints", "no_adjacent"])
+    result = runner.invoke(permutation_command, [sequence, "--constraints", "no_adjacent"])
     assert result.output.rstrip() == str(expected)
     result = runner.invoke(
-        permutation, [sequence, "--constraints", "no_adjacent", "--same-distinct"]
+        permutation_command, [sequence, "--constraints", "no_adjacent", "--same-distinct"]
     )
     assert result.output.rstrip() == str(expected_if_same_distinct)
 
@@ -100,12 +96,10 @@ def test_probability_permutations_no_adjacent(
         ("abbc", "1/6", "1/6"),
     ],
 )
-def test_count_permutations_derangement(
-    runner, sequence, expected, expected_if_same_distinct
-):
-    result = runner.invoke(permutation, [sequence, "--constraints", "derangement"])
+def test_count_permutations_derangement(runner, sequence, expected, expected_if_same_distinct):
+    result = runner.invoke(permutation_command, [sequence, "--constraints", "derangement"])
     assert result.output.rstrip() == str(expected)
     result = runner.invoke(
-        permutation, [sequence, "--constraints", "derangement", "--same-distinct"]
+        permutation_command, [sequence, "--constraints", "derangement", "--same-distinct"]
     )
     assert result.output.rstrip() == str(expected_if_same_distinct)

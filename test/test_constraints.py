@@ -32,14 +32,8 @@ from ccc.errors import ConstraintError
         ("3 < red <= 7", [[("gt", "red", 3), ("le", "red", 7)]]),
         # tuples of constraints
         ("3 < red, blue <= 9", [[("gt", "red", 3), ("le", "blue", 9)]]),
-        (
-            "3 < red, abcde, blue <= 9",
-            [[("gt", "red", 3), ("abcde",), ("le", "blue", 9)]],
-        ),
-        (
-            "3 < red, abcde, blue <= 9",
-            [[("gt", "red", 3), ("abcde",), ("le", "blue", 9)]],
-        ),
+        ("3 < red, abcde, blue <= 9", [[("gt", "red", 3), ("abcde",), ("le", "blue", 9)]]),
+        ("3 < red, abcde, blue <= 9", [[("gt", "red", 3), ("abcde",), ("le", "blue", 9)]]),
         ("abcde, 2 < blue <= 9", [[("abcde",), ("gt", "blue", 2), ("le", "blue", 9)]]),
         ("red in (7, 8, 9), xyz", [[("in", "red", [7, 8, 9]), ("xyz",)]]),
         # disjunctions

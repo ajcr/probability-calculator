@@ -1,5 +1,4 @@
-from fractions import Fraction
-from typing import List, Dict, Tuple
+import sys
 
 import click
 
@@ -12,20 +11,16 @@ from ccc.util.misc import subsets
 
 @click.group()
 def probability() -> None:
-    """
-    Compute the probability that a specified collection is seen.
-
-    """
-    pass
+    "Compute the probability that a specified collection is seen."
 
 
-@probability.command()
+@probability.command("draw")
 @click.option("--size", "-s", type=int, required=True)
 @click.option("--constraints", "-c", type=str)
 @click.option("--from-collection", "-k", type=str, required=True)
 @click.option("--replace/--no-replace", default=False)
 @click.option("--rational/--float", default=True)
-def draw(size, constraints, from_collection, rational, replace) -> None:
+def draw_command(size, constraints, from_collection, rational, replace) -> None:
     """
     Probability of drawing (without replacement) a collection
     of the specified size from the specified collection that
@@ -53,12 +48,12 @@ def draw(size, constraints, from_collection, rational, replace) -> None:
         click.echo(float(answer))
 
 
-@probability.command()
+@probability.command("permutation")
 @click.argument("sequence")
 @click.option("--constraints", "-c", type=str, required=True)
 @click.option("--same-distinct/--no-same-distinct", default=False)
 @click.option("--rational/--float", default=True)
-def permutation(sequence, constraints, same_distinct, rational):
+def permutation_command(sequence, constraints, same_distinct, rational):
     """
     Probability that a random permutation of the sequence
     meets a specified contraint.
