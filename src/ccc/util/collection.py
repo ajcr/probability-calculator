@@ -11,22 +11,20 @@ def unpack_assign(assign: ast.Assign) -> Tuple[str, int]:
     """
     try:
         targets = assign.targets
-        value = assign.value.n
+        value = assign.value.n  # type: ignore
 
     except (AttributeError, TypeError):
-        raise CollectionError(
-            f"Item count at {assign.col_offset} not understood"
-        ) from None
+        raise CollectionError(f"Item count at {assign.col_offset} not understood") from None
 
     if len(targets) > 1:
         raise CollectionError(
-            f"Can only assign count to single item, not {','.join(targets)}"
+            f"Can only assign count to single item, not {','.join(targets)}"  # type: ignore
         )
 
     if not isinstance(value, int) or value < 1:
         raise CollectionError(f"Item counts must be positive integers, got {value}")
 
-    return targets[0].id, value
+    return targets[0].id, value  # type: ignore
 
 
 def process_collection_string(collection_string: str) -> Dict[str, int]:
@@ -50,9 +48,7 @@ def process_collection_string(collection_string: str) -> Dict[str, int]:
             item, count = unpack_assign(node)
 
         else:
-            raise CollectionError(
-                f"Invalid item assignment in string at offset {node.col_offset}"
-            )
+            raise CollectionError(f"Invalid item assignment in string at offset {node.col_offset}")
 
         if item not in item_counts:
             item_counts[item] = count

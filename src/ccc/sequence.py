@@ -1,4 +1,4 @@
-from typing import Optional, Collection, Dict, List, Tuple, AbstractSet
+from typing import Optional, Dict, List, Tuple, AbstractSet
 
 from sympy import Poly, prod, factorial
 from sympy.abc import x

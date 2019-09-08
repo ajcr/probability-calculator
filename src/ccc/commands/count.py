@@ -13,11 +13,7 @@ from ccc.util.misc import subsets
 
 @click.group()
 def count():
-    """
-    Count the number of object that match the given constraints
-
-    """
-    pass
+    "Count the number of object that match the given constraints."
 
 
 @count.command()

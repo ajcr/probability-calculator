@@ -1,4 +1,4 @@
-from typing import AbstractSet, Collection, Dict, List, MutableSet, Optional, Set, Tuple
+from typing import AbstractSet, Dict, List, Optional, Tuple
 
 from sympy import Poly, prod
 from sympy.abc import x
@@ -28,9 +28,7 @@ class Multiset(PolynomialTracker):
         """
         Count number of possible multisets that meet constraints.
         """
-        poly = prod(
-            degrees_to_polynomial(degrees) for degrees in self._degrees.values()
-        )
+        poly = prod(degrees_to_polynomial(degrees) for degrees in self._degrees.values())
         return poly.coeff_monomial(x ** self._max_degree)
 
 

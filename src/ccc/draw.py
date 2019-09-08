@@ -1,4 +1,4 @@
-from typing import AbstractSet, Collection, Dict, List, MutableSet, Optional, Set, Tuple
+from typing import AbstractSet, Dict, List, Optional, Tuple
 
 from sympy import Poly, Rational, prod, binomial, factorial
 from sympy.abc import x
@@ -48,9 +48,7 @@ class Draw(PolynomialTracker):
 
         for item, degrees in self._degrees.items():
 
-            p = degrees_to_polynomial_with_binomial_coeff(
-                degrees, self._collection[item]
-            )
+            p = degrees_to_polynomial_with_binomial_coeff(degrees, self._collection[item])
             polys.append(p)
 
         return prod(polys).coeff_monomial(x ** self._max_degree)
@@ -73,19 +71,12 @@ class Draw(PolynomialTracker):
                 )
                 polys.append(p)
 
-            return prod(polys).coeff_monomial(x ** self._max_degree) * factorial(
-                self._max_degree
-            )
+            return prod(polys).coeff_monomial(x ** self._max_degree) * factorial(self._max_degree)
 
-        else:
-            return self.count() / binomial(
-                self.total_items_in_collection(), self._max_degree
-            )
+        return self.count() / binomial(self.total_items_in_collection(), self._max_degree)
 
 
-def degrees_to_polynomial_with_binomial_coeff(
-    degrees: AbstractSet[int], n: int
-) -> Poly:
+def degrees_to_polynomial_with_binomial_coeff(degrees: AbstractSet[int], n: int) -> Poly:
     """
     For each degree in a set, create the polynomial with those
     terms with degree d having coefficient binomial(n, d):
