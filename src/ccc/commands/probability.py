@@ -11,35 +11,41 @@ from ccc.util.misc import subsets
 
 @click.group()
 def probability() -> None:
-    "Compute the probability that a specified collection is seen."
+    "Probability that a collection of items is drawn"
 
 
 @probability.command("draw")
-@click.option("--size", "-s", type=int, required=True)
-@click.option("--constraints", "-c", type=str)
-@click.option("--from-collection", "-k", type=str, required=True)
-@click.option("--replace/--no-replace", default=False)
-@click.option("--rational/--float", default=True)
-def draw_command(size, constraints, from_collection, rational, replace) -> None:
+@click.option("--number", "-n", type=int, required=True, help="Number of items to draw")
+@click.option(
+    "--from", "-f", "from_", type=str, required=True, help="Collection of items to draw from"
+)
+@click.option("--constraints", "-c", type=str, required=True, help="Constraints the draw must meet")
+@click.option(
+    "--replace/--no-replace",
+    default=False,
+    help="Toggle whether each item is replaced after being drawn",
+)
+@click.option("--rational/--float", default=True, help="Toggle representation of probability")
+def draw_command(number, constraints, from_, rational, replace) -> None:
     """
-    Probability of drawing (without replacement) a collection
-    of the specified size from the specified collection that
-    optionally meets one or more contraints.
+    Probability of drawing a collection a given size such that
+    any constraints imposed on the items are met
     """
     if constraints is not None:
         constraints = process_constraint_string(constraints)
 
-    collection = process_collection_string(from_collection)
+    collection = process_collection_string(from_)
 
     if len(constraints) == 1:
-        draw = Draw(size, collection, constraints[0], replace=replace)
+        draw = Draw(number, collection, constraints[0], replace=replace)
         answer = draw.probability()
 
     else:
         answer = 0
 
+        # Inclusion/Exclusion
         for n, subset in subsets(constraints):
-            draw = Draw(size, collection, subset, replace=replace)
+            draw = Draw(number, collection, subset, replace=replace)
             answer += (-1) ** (n + 1) * draw.probability()
 
     if rational:
@@ -50,13 +56,17 @@ def draw_command(size, constraints, from_collection, rational, replace) -> None:
 
 @probability.command("permutation")
 @click.argument("sequence")
-@click.option("--constraints", "-c", type=str, required=True)
-@click.option("--same-distinct/--no-same-distinct", default=False)
-@click.option("--rational/--float", default=True)
+@click.option(
+    "--constraints", "-c", type=str, required=True, help="Constraints the permuation must meet"
+)
+@click.option(
+    "--same-distinct/--no-same-distinct", default=False, help="Toggle whether each item is unique"
+)
+@click.option("--rational/--float", default=True, help="Toggle representation of probability")
 def permutation_command(sequence, constraints, same_distinct, rational):
     """
-    Probability that a random permutation of the sequence
-    meets a specified contraint.
+    Probability that a random permutation of the given sequence
+    meets the specified contraints.
     """
     constraints = process_constraint_string(constraints)
 

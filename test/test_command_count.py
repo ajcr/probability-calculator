@@ -1,6 +1,6 @@
 import pytest
 
-from ccc.commands.count import multisets, sequences, permutations
+from ccc.commands.count import multisets, sequences, permutations, draws
 
 
 @pytest.mark.parametrize(
@@ -42,6 +42,34 @@ def test_count_permutations_no_constraints(runner, sequence, expected, expected_
     assert result.output.rstrip() == str(expected)
     result = runner.invoke(permutations, [sequence, "--same-distinct"])
     assert result.output.rstrip() == str(expected_if_same_distinct)
+
+
+@pytest.mark.parametrize(
+    "size,collection,constraints,expected",
+    [
+        (4, "blue = 12; red = 16; green = 11", "red <= 3 or blue == 3", 80431),
+        (5, "blue = 12; red = 16; green = 11", "red <= 3 or blue == 3", 529529),
+        (5, "blue = 12; red = 16; green = 11", "(blue == 1, red <= 3) or blue == 3", 265980),
+        (
+            5,
+            "blue = 12; red = 16; green = 11",
+            "(blue == 1, red <= 3) or blue == 3 or green == 2",
+            354860,
+        ),
+        (
+            5,
+            "blue = 12; red = 16; green = 11",
+            "(blue == 1, red <= 3) or blue == 3 or green >= 2",
+            391292,
+        ),
+        (5, "blue = 5; red = 16; green = 11", "blue == 5 or blue == 0", 80731),
+    ],
+)
+def test_count_draws(runner, size, collection, constraints, expected):
+    result = runner.invoke(
+        draws, ["--size", size, "--collection", collection, "--constraints", constraints]
+    )
+    assert result.output.rstrip() == str(expected)
 
 
 @pytest.mark.parametrize(

@@ -68,8 +68,8 @@ Here is an example:
 To solve this with ccc we can easily specify the *collection* we draw from, the *size* of the draw we make, and any *constraints* on the draw:
 
 ```
-ccc probability draw --from-collection "red = 3; black = 5; blue = 5" \
-                     --size 4 \
+ccc probability draw --from "red = 3; black = 5; blue = 5" \
+                     --number 4 \
                      --constraints "red == 0"
 ```
 This puts the probability of winning (not drawing a red marble) at **42/143** (about 0.29).
@@ -77,9 +77,9 @@ This puts the probability of winning (not drawing a red marble) at **42/143** (a
 What about if the marble is replaced after each draw? This can be specified using the `--replace` flag:
 
 ```
-ccc probability draw --from-collection "red = 3; black = 5; blue = 5" \
-                     --size 4 \
-                     --constraints "red == 0" \
+ccc probability draw -f "red = 3; black = 5; blue = 5" \
+                     -n 4 \
+                     -c "red == 0" \
                      --replace
 ```
 Now the chance of winning is slightly better at **10000/28561** (about 0.35).
@@ -101,8 +101,8 @@ In fact, we can specify much more complicated constraints on what we want to dra
 > What is you chance of winning the toy?
 
 ```
-ccc probability draw --from-collection "red = 3; black = 5; blue = 5; white = 2" \
-                     --size 5 \
+ccc probability draw --from "red = 3; black = 5; blue = 5; white = 2" \
+                     --number 5 \
                      --constraints "white >= 1, black >= 2, 1 <= blue <= 3"
 ```
 Our chance of winning is **50/231** according to ccc (about 0.22).
@@ -121,8 +121,8 @@ Lastly, it is possible to use `or` (any number of times) in constraints:
 > What is the probability of winning the jackpot?
 
 ```
-ccc probability draw --from-collection "red = 3; black = 5; blue = 5; white = 2" \
-                     --size 3 \
+ccc probability draw --from "red = 3; black = 5; blue = 5; white = 2" \
+                     --number 3 \
                      --constraints "white == 2 or (red == 1, black == 1, blue == 1)"
 ```
 The probability is **88/455** (about 0.19): not much more difficult that winning that cuddly toy.
@@ -175,7 +175,7 @@ Permutations of words can be counted as follows:
 ccc count permutations MISSISSIPPI
 ```
 
-There are `34650` unique permutations of this famous river/state.
+There are **34650** unique permutations of this famous river/state.
 
 What about if we only count permutations where instances of the same letter are not adjacent to each other?
 
