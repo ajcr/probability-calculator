@@ -20,8 +20,7 @@ from ccc.commands.probability import draw_command, permutation_command
 )
 def test_count_draws_no_replacement(runner, size, constraints, collection, expected):
     result = runner.invoke(
-        draw_command,
-        ["--size", size, "--constraints", constraints, "--from-collection", collection],
+        draw_command, ["--number", size, "--constraints", constraints, "--from", collection]
     )
     assert result.output.rstrip() == expected
 
@@ -42,15 +41,7 @@ def test_count_draws_no_replacement(runner, size, constraints, collection, expec
 def test_count_draws_with_replacement(runner, size, constraints, collection, expected):
     result = runner.invoke(
         draw_command,
-        [
-            "--size",
-            size,
-            "--constraints",
-            constraints,
-            "--from-collection",
-            collection,
-            "--replace",
-        ],
+        ["--number", size, "--constraints", constraints, "--from", collection, "--replace"],
     )
     assert result.output.rstrip() == expected
 
