@@ -19,7 +19,7 @@ def probability() -> None:
 @click.option(
     "--from", "-f", "from_", type=str, required=True, help="Collection of items to draw from"
 )
-@click.option("--constraints", "-c", type=str, help="Constraints the draw must meet")
+@click.option("--constraints", "-c", type=str, required=True, help="Constraints the draw must meet")
 @click.option(
     "--replace/--no-replace",
     default=False,
