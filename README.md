@@ -50,9 +50,7 @@ See below for numerous other examples and explanations.
 Installation requires Python 3.6 or newer.
 
 ```
-git clone https://github.com/ajcr/ccc
-cd ccc
-python -m pip install .
+pip install ccc-calculator
 ```
 
 ## Development install
