@@ -79,8 +79,8 @@ def draws(size, constraints, collection):
 
 @count.command()
 @click.option("--size", "-s", type=int, required=True, help="Number of items in sequence")
+@click.option("--constraints", "-c", type=str, required=True, help="Constraints on sequences")
 @click.option("--collection", "-k", type=str, help="Collection to create sequences from")
-@click.option("--constraints", "-c", type=str, help="Constraints on sequences")
 def sequences(size, constraints, collection):
     """
     Count possible sequences of the given size that meet zero more constraints
