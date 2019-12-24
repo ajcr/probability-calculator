@@ -2,14 +2,48 @@
 
 Command line Combinatorial Calculator for Counting Constrained Collections.
 
-## Overview
+## Introduction
 
 ccc is a calculator that can:
 
-- *count* the number of possible ways a certain collection of items can meet one or more constraints
 - tell you the *probability* of possible ways a certain collection of items can meet one or more constraints
+- *count* the number of possible ways a certain collection of items can meet one or more constraints
 
-ccc calculates these numbers in an efficient way, meaning that you can demand some quite elaborate constraints on large collections.
+For example, consider the following problem (asked on [stats.stackexchange.com](https://stats.stackexchange.com/questions/24211)):
+
+> There are **232** tickets for an event. 363 people apply for a ticket, **12** of whom are from a particular group (so **351** are not from the group). Each ticket is allocated to one person at random and each person can recieve at most one ticket. What is the probability that **at most 2** tickets are given to people in the group?
+
+ccc makes it easy to translate the problem into a single command, handling the tedious computational details from you:
+
+```
+$ ccc probability draw --from 'group=12; rest=351' \
+                       --number 232 \
+                       --constraints 'town <= 2' \
+                       --float
+0.00093
+```
+
+That's roughly 1 in 10000.
+
+Or suppose we're designing a *Magic: The Gathering* deck:
+
+> A deck of 60 cards contains **13** mountain cards and **12** swamp cards. What is the probability that we draw **7** cards and get **between 1 and 3 mountains** and **exactly 2 swamps**?
+
+Using ccc, we can write these constraints very easily:
+
+```
+$ ccc prob draw --from 'mountain=13; swamp=12; rest=35' \
+                --number 7 \
+                --constraints '1 <= mountain <= 3, swamp == 2' \
+                --float
+0.23264
+```
+
+About 23%.
+
+These types of problem are common in everyday life but, depending on how familiar you are with statistics or combinatorics, they can be hard to calculate or even estimate accurately.
+
+See below for numerous other examples and explanations.
 
 ## Install
 
@@ -37,7 +71,7 @@ pre-commit install
 
 Unit tests can be run with `pytest`. Pre-commit hooks will run on each git commit. The hooks can also be invoked with `pre-commit run -a`.
 
-## Examples
+## More examples
 
 The easiest way to introduce ccc is to show various example calculations from the command-line.
 
@@ -47,7 +81,7 @@ ccc is always invoked in the following way:
 ccc [computation-type] [collection-type] [--args]
 ```
 
-In all of the examples below, notice how easy it is to express constraints that would otherwise necessitate writing tedious and complicated code, or performating repetitive arithmetic on paper.
+In all of the examples below, notice how easy it is to express constraints that would otherwise necessitate writing complicated code, or performing repetitive arithmetic on paper.
 
 ### Draws
 
@@ -59,75 +93,64 @@ Here is an example:
 >
 > - 3 red marbles (:red_circle::red_circle::red_circle:)
 > - 5 black marbles (:black_circle::black_circle::black_circle::black_circle::black_circle:)
-> - 5 blue marbles (:large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle:)
+> - 7 blue marbles (:large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle:)
 >
-> You must draw at random (and without replacement) 4 of these marbles. You lose if you draw one or more of the red marbles (:red_circle:).
+> You must draw at random (and without replacement) 4 of these marbles. You lose if you draw 1 or more of the blue marbles (:blue_circle:).
 >
 > What is your probability of winning?
 
 To solve this with ccc we can easily specify the *collection* we draw from, the *size* of the draw we make, and any *constraints* on the draw:
 
 ```
-ccc probability draw --from "red = 3; black = 5; blue = 5" \
+ccc probability draw --from "red=3; black=5; blue=5" \
                      --number 4 \
-                     --constraints "red == 0"
+                     --constraints "blue == 0"
 ```
-This puts the probability of winning (not drawing a red marble) at **42/143** (about 0.29).
+This puts the probability of winning (not drawing a blue marble) at **2/39**, so perhaps we'd win once every 19 or so attempts.
 
-What about if the marble is replaced after each draw? This can be specified using the `--replace` flag:
+Notice how easy it is to specify the constraints. Just the item's name (*blue*) and its desired count (*0*). Any comparison operators can be used (`==`, `!=`, `<`, `<=`, `>`, `>=`).
 
-```
-ccc probability draw -f "red = 3; black = 5; blue = 5" \
-                     -n 4 \
-                     -c "red == 0" \
-                     --replace
-```
-Now the chance of winning is slightly better at **10000/28561** (about 0.35).
-
-Notice how easy it is to specify the constraints. Just the item's name (*red*) and its desired count (0).
+If we wanted to allow a marble to be replaced after each draw, we would add the `--replace` flag.
 
 ---
 
-In fact, we can specify much more complicated constraints on what we want to draw from the bag:
+We can specify more complicated constraints on what we want to draw from the bag:
 
-> This time, draw 5 marbles without replacement from the same collection, but with 2 white marbles (:white_circle::white_circle:)  added.
+> This time, draw **5** marbles without replacement from the same collection, but with 2 white marbles (:white_circle::white_circle:)  added.
 >
-> You win a cuddly toy if you draw a collection which comprises
+> You win a toy if you draw a collection which comprises
 >
-> - at least 1 white marble (:white_circle:**+**), **and**
-> - at least 2 black marbles (:black_circle::black_circle:**+**), **and**
-> - between 1 and 3 blue marbles (:large_blue_circle: or :large_blue_circle::large_blue_circle: or :large_blue_circle::large_blue_circle::large_blue_circle:).
+> - both white marbles (:white_circle::white_circle:), **and**
+> - at least 1 black marble (:black_circle:**+**)
 >
 > What is you chance of winning the toy?
 
 ```
-ccc probability draw --from "red = 3; black = 5; blue = 5; white = 2" \
+ccc probability draw --from "red=3; black=5; blue=7; white=2" \
                      --number 5 \
-                     --constraints "white >= 1, black >= 2, 1 <= blue <= 3"
+                     --constraints "white == 2, black >= 1"
 ```
-Our chance of winning is **50/231** according to ccc (about 0.22).
+Our chance of winning is **3/119** according to ccc, so we would expect to win around once every 40 attempts.
 
-To express multiple constraints on our draw, we simply wrote them using commas `,` to separate them.
+You can see that to express multiple constraints on our draw, we simply used commas `,` to separate them.
 
 ---
 
 Lastly, it is possible to use `or` (any number of times) in constraints:
 
-> To win the jackpot, draw 3 marbles such that you get
+> Draw **3** marbles such that you get:
 >
-> - 2 white marbles (:white_circle::white_circle: + :grey_question:) **or**
-> - 1 red, 1 black and 1 blue marble (:red_circle::black_circle::large_blue_circle:)
+> - 3 red marbles (:red_circle::red_circle::red_circle:) **or**
+> - 1 white, 1 black and 1 blue marble (:white_circle::black_circle::large_blue_circle:)
 >
-> What is the probability of winning the jackpot?
+> What is the probability of succeeding now?
 
 ```
-ccc probability draw --from "red = 3; black = 5; blue = 5; white = 2" \
+ccc probability draw --from "red=3; black=5; blue=7; white=2" \
                      --number 3 \
-                     --constraints "white == 2 or (red == 1, black == 1, blue == 1)"
+                     --constraints "red == 3 or (white == 1, black == 1, blue == 1)"
 ```
-The probability is **88/455** (about 0.19): not much more difficult that winning that cuddly toy.
-
-You can see that we had two groups of constraint conjunctions where either could be true: `white == 2` and `red == 1, black == 1, blue == 1`
+The probability is **0.1**.
 
 
 ### Multisets
