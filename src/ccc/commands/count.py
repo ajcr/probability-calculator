@@ -24,11 +24,16 @@ def multisets(size, constraints, collection):
     """
     Count multisets of the given size that meet zero or more constraints
     """
+    if collection is not None:
+        collection = process_collection_string(collection)
+
     if constraints is not None:
         constraints = process_constraint_string(constraints)
 
-    if collection is not None:
-        collection = process_collection_string(collection)
+    else:
+        ms = Multiset(size, collection)
+        click.echo(ms.count())
+        sys.exit(0)
 
     if len(constraints) == 1:
         ms = Multiset(size, collection, constraints[0])
@@ -57,10 +62,15 @@ def draws(size, constraints, collection):
     Count draws (without replacement) of the given size from a
     collection which meet zero or more constraints
     """
+    collection = process_collection_string(collection)
+
     if constraints is not None:
         constraints = process_constraint_string(constraints)
 
-    collection = process_collection_string(collection)
+    else:
+        ms = Multiset(size, collection)
+        click.echo(ms.count())
+        sys.exit(0)
 
     if len(constraints) == 1:
         draw = Draw(size, collection, constraints[0])
