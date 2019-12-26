@@ -1,6 +1,12 @@
 # ccc
 
+[![PyPI version](https://badge.fury.io/py/ccc-calculator.svg)](https://badge.fury.io/py/ccc-calculator)
+
 Command line Combinatorial Calculator for Counting Constrained Collections.
+
+```
+pip install ccc-calculator
+```
 
 ## Introduction
 
@@ -9,59 +15,57 @@ ccc is a calculator that can:
 - tell you the *probability* of possible ways a certain collection of items can meet one or more constraints
 - *count* the number of possible ways a certain collection of items can meet one or more constraints
 
-For example, consider the following problem (asked on [stats.stackexchange.com](https://stats.stackexchange.com/questions/24211)):
+ccc makes it strightforward to specify the type of collection you want, and handles all the calculation for you.
 
-> There are **232** tickets for an event. 363 people apply for a ticket, **12** of whom are from a particular group (so **351** are not from the group). Each ticket is allocated to one person at random and each person can recieve at most one ticket. What is the probability that **at most 2** tickets are given to people in the group?
-
-ccc makes it easy to translate the problem into a single command, handling the tedious computational details from you:
-
-```
-$ ccc probability draw --from 'group=12; rest=351' \
-                       --number 232 \
-                       --constraints 'town <= 2' \
-                       --float
-0.00093
-```
-
-That's roughly 1 in 10000.
-
-Or suppose we're designing a *Magic: The Gathering* deck:
+For instance, suppose we're designing a *Magic: The Gathering* deck:
 
 > A deck of 60 cards contains **13** mountain cards and **12** swamp cards. What is the probability that we draw **7** cards and get **between 1 and 3 mountains** and **exactly 2 swamps**?
 
-Using ccc, we can write these constraints very easily:
+Using ccc, we specify the collection we're drawing from, the number of cards we want to draw, and then constrain what we're hoping to see in our hand:
 
 ```
 $ ccc prob draw --from 'mountain=13; swamp=12; rest=35' \
                 --number 7 \
                 --constraints '1 <= mountain <= 3, swamp == 2' \
-                --float
-0.23264
+68068/292581
 ```
 
-About 23%.
+So the chance of drawing the handing meeting these constraints is around **23%**.
 
-These types of problem are common in everyday life but, depending on how familiar you are with statistics or combinatorics, they can be hard to calculate or even estimate accurately.
+For another example, consider the following problem about investigating selection bias (asked on [stats.stackexchange.com](https://stats.stackexchange.com/questions/24211)):
 
-See below for numerous other examples and explanations.
+> There are **232** tickets for an event. 363 people apply for a ticket, **12** of whom are from a particular group (so **351** are not from the group). Each ticket is allocated to one person at random and each person can recieve at most one ticket. What is the probability that **at most 2** tickets are given to people in the group?
+
+To work this out, we can simply write:
+
+```
+$ ccc probability draw --from 'group=12; rest=351' \
+                       --number 232 \
+                       --constraints 'group <= 2' \
+                       --float
+0.00093
+```
+
+That's a probability of roughly **1/10000**.
+
+See below for examples of other problems that can be solved using ccc.
 
 ## Install
 
-Installation requires Python 3.6 or newer.
-
+Installation requires Python 3.6 or newer. You can use pip:
 ```
 pip install ccc-calculator
 ```
 
 ## Development install
 
-Clone the repo, create a virtual environment, install the development dependencies, install the module in editable mode, install pre-commit hooks:
+If you want to develop ccc (thanks!), then clone the repo, create a virtual environment, install the development dependencies, install the module in editable mode and install pre-commit hooks:
 
 ```
 git clone https://github.com/ajcr/ccc
 cd ccc
 python -m venv venv
-. venv/bin/activate
+source venv/bin/activate
 python -m pip requirements-dev.txt
 python -m pip install -e .
 pre-commit install
@@ -71,13 +75,13 @@ Unit tests can be run with `pytest`. Pre-commit hooks will run on each git commi
 
 ## More examples
 
-The easiest way to introduce ccc is to show various example calculations from the command-line.
-
 ccc is always invoked in the following way:
 
 ```
 ccc [computation-type] [collection-type] [--args]
 ```
+
+The easiest way to introduce ccc is to show various example calculations from the command-line.
 
 In all of the examples below, notice how easy it is to express constraints that would otherwise necessitate writing complicated code, or performing repetitive arithmetic on paper.
 
@@ -93,14 +97,14 @@ Here is an example:
 > - 5 black marbles (:black_circle::black_circle::black_circle::black_circle::black_circle:)
 > - 7 blue marbles (:large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle::large_blue_circle:)
 >
-> You must draw at random (and without replacement) 4 of these marbles. You lose if you draw 1 or more of the blue marbles (:blue_circle:).
+> You must draw at random (and without replacement) 4 of these marbles. You lose if you draw 1 or more of the blue marbles (:large_blue_circle:).
 >
 > What is your probability of winning?
 
 To solve this with ccc we can easily specify the *collection* we draw from, the *size* of the draw we make, and any *constraints* on the draw:
 
 ```
-ccc probability draw --from "red=3; black=5; blue=5" \
+ccc probability draw --from "red=3; black=5; blue=7" \
                      --number 4 \
                      --constraints "blue == 0"
 ```
@@ -108,7 +112,9 @@ This puts the probability of winning (not drawing a blue marble) at **2/39**, so
 
 Notice how easy it is to specify the constraints. Just the item's name (*blue*) and its desired count (*0*). Any comparison operators can be used (`==`, `!=`, `<`, `<=`, `>`, `>=`).
 
-If we wanted to allow a marble to be replaced after each draw, we would add the `--replace` flag.
+We specify items in a collection via assignments, separated by semi-colons.
+
+(If we wanted to allow a marble to be replaced after each draw, we would add the `--replace` flag.)
 
 ---
 
@@ -169,7 +175,7 @@ ccc count multisets --size 20 \
 
 The answer is **406**.
 
-The modulo (`%`) operator used above provides the facility to solve coin change problems, for example:
+The modulo (`%`) operator used above also provides a means to solve coin change problems, for example:
 
 > The UK currency has the following coins:
 >
@@ -186,7 +192,14 @@ ccc count multisets --constraints 'a%1==0, b%2==0, c%5==0, d%10==0, e%20==0, f%5
 
 The answer is computed within a couple of seconds as **6,295,434** different ways.
 
-We could also put additional contraints on the coins, such as restricting the number of times a coin may be used.
+We could also put additional constraints on the coins very easily, such as restricting the number of times a coin may be used. For example, if we had to use fewer than 61 pennies we'd add `a < 61` to these constraints:
+
+```
+ccc count multisets --constraints 'a%1==0, a<61, b%2==0, c%5==0, d%10==0, e%20==0, f%50==0, g%100==0, h%200==0' \
+                    --size 500
+```
+
+It turns out this pretty much halves the number of possibilities to **3,129,446**.
 
 ### Permutations
 
