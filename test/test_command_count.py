@@ -19,6 +19,22 @@ def test_count_multisets(runner, size, constraints, expected):
     assert result.output.rstrip() == str(expected)
 
 
+@pytest.mark.parametrize("subcommand", [multisets, draws])
+@pytest.mark.parametrize(
+    "size,collection,expected",
+    [
+        (0, "a=5; b=10; c=15", 1),
+        (1, "a=5; b=10; c=15", 3),
+        (2, "a=5; b=10; c=15", 6),
+        (15, "a=5; b=10; c=15", 66),
+        (30, "a=5; b=10; c=15", 1),
+    ],
+)
+def test_count_multisets_no_constraints(runner, subcommand, size, collection, expected):
+    result = runner.invoke(subcommand, ["--size", size, "--collection", collection])
+    assert result.output.rstrip() == str(expected)
+
+
 @pytest.mark.parametrize(
     "size,constraints,expected",
     [
