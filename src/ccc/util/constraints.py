@@ -11,18 +11,19 @@ ORDER_OPS = {ast.Lt: "lt", ast.LtE: "le", ast.Gt: "gt", ast.GtE: "ge", **EQUALIT
 REFLECT_ORDER_OPS = {ast.Lt: "gt", ast.LtE: "ge", ast.Gt: "lt", ast.GtE: "le", **EQUALITIES}
 
 # Constraint Type Annotations
+CompareConstraintType = Tuple[str, str, int]
+ContainsConstraintType = Tuple[str, str, List[int]]
+ModConstraintType = Tuple[str, str, int, int]
+NameContraint = Tuple[str]
 
-CompareConstraint = Tuple[str, str, int]
-ContainsConstraint = Tuple[str, str, List[int]]
-ModConstraint = Tuple[str, str, int, int]
-NameConstraint = Tuple[str]
-
-OrderOpConstraintConjunctionList = List[Union[CompareConstraint, ContainsConstraint, ModConstraint]]
+OrderOpConstraintConjunctionListType = List[
+    Union[CompareConstraintType, ContainsConstraintType, ModConstraintType]
+]
 
 
 def process_single_compare_node(
     compare_node: ast.Compare
-) -> Union[CompareConstraint, ContainsConstraint, ModConstraint]:
+) -> Union[CompareConstraintType, ContainsConstraintType, ModConstraintType]:
     """
     Unpack a compare operation into its constituent parts.
 
@@ -102,7 +103,7 @@ def process_single_compare_node(
     raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
 
 
-def process_chained_compare_node(compare_node: ast.Compare) -> OrderOpConstraintConjunctionList:
+def process_chained_compare_node(compare_node: ast.Compare) -> OrderOpConstraintConjunctionListType:
     """
     Unpack a chained compare operation into its two
     constituent parts.
@@ -142,7 +143,7 @@ def process_chained_compare_node(compare_node: ast.Compare) -> OrderOpConstraint
     raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
 
 
-def process_compare_node(compare_node: ast.Compare) -> OrderOpConstraintConjunctionList:
+def process_compare_node(compare_node: ast.Compare) -> OrderOpConstraintConjunctionListType:
     """
     Unpack a compare node into constraints.
 
