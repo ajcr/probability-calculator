@@ -4,26 +4,22 @@ from typing import List, Tuple, Union
 from ccc.errors import ConstraintError
 
 # Mappings for ast node classes to strings
-
 CONTAINS_OPS = {ast.In: "in", ast.NotIn: "not_in"}
 EQUALITIES = {ast.Eq: "eq", ast.NotEq: "ne"}
 ORDER_OPS = {ast.Lt: "lt", ast.LtE: "le", ast.Gt: "gt", ast.GtE: "ge", **EQUALITIES}
 REFLECT_ORDER_OPS = {ast.Lt: "gt", ast.LtE: "ge", ast.Gt: "lt", ast.GtE: "le", **EQUALITIES}
 
-# Constraint Type Annotations
+# Constraint type aliases
 CompareConstraintType = Tuple[str, str, int]
 ContainsConstraintType = Tuple[str, str, List[int]]
 ModConstraintType = Tuple[str, str, int, int]
-NameContraint = Tuple[str]
+NamedConstraintType = Tuple[str]
 
-OrderOpConstraintConjunctionListType = List[
-    Union[CompareConstraintType, ContainsConstraintType, ModConstraintType]
-]
+OrderOpConstraintType = Union[CompareConstraintType, ContainsConstraintType, ModConstraintType]
+AnyConstraintType = Union[OrderOpConstraintType, NamedConstraintType]
 
 
-def process_single_compare_node(
-    compare_node: ast.Compare
-) -> Union[CompareConstraintType, ContainsConstraintType, ModConstraintType]:
+def process_single_compare_node(compare_node: ast.Compare) -> OrderOpConstraintType:
     """
     Unpack a compare operation into its constituent parts.
 
@@ -103,7 +99,7 @@ def process_single_compare_node(
     raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
 
 
-def process_chained_compare_node(compare_node: ast.Compare) -> OrderOpConstraintConjunctionListType:
+def process_chained_compare_node(compare_node: ast.Compare) -> List[OrderOpConstraintType]:
     """
     Unpack a chained compare operation into its two
     constituent parts.
@@ -143,7 +139,7 @@ def process_chained_compare_node(compare_node: ast.Compare) -> OrderOpConstraint
     raise ConstraintError(f"Constraint starting at offset {compare_node.col_offset} not understood")
 
 
-def process_compare_node(compare_node: ast.Compare) -> OrderOpConstraintConjunctionListType:
+def process_compare_node(compare_node: ast.Compare) -> List[OrderOpConstraintType]:
     """
     Unpack a compare node into constraints.
 
@@ -162,13 +158,13 @@ def process_compare_node(compare_node: ast.Compare) -> OrderOpConstraintConjunct
     )
 
 
-def process_tuple_node(tuple_node: ast.Tuple) -> List:
+def process_tuple_node(tuple_node: ast.Tuple) -> List[AnyConstraintType]:
     """
     Visit and process each constraint in the tuple.
 
-    Each constraint can be either a compare operateration or a name.
+    Each constraint can be either a compare operation or a name.
     """
-    constraints: List = []
+    constraints: List[AnyConstraintType] = []
 
     for node in tuple_node.elts:
 
@@ -184,13 +180,13 @@ def process_tuple_node(tuple_node: ast.Tuple) -> List:
     return constraints
 
 
-def process_boolop_node(boolop_node: ast.BoolOp) -> List:
+def process_boolop_node(boolop_node: ast.BoolOp) -> List[List[AnyConstraintType]]:
     """
     Disjunctions ('or') of tuples, comparisions or names are supported.
 
     Boolean operations are not permitted within disjuncts.
     """
-    disjunctions: List = []
+    disjunctions: List[List[AnyConstraintType]] = []
 
     for node in boolop_node.values:
 
@@ -198,7 +194,7 @@ def process_boolop_node(boolop_node: ast.BoolOp) -> List:
             disjunctions += [process_tuple_node(node)]
 
         elif isinstance(node, ast.Compare):
-            disjunctions += [process_compare_node(node)]
+            disjunctions += [process_compare_node(node)]  # type: ignore
 
         elif isinstance(node, ast.Name):
             disjunctions += [[(node.id,)]]
@@ -209,7 +205,7 @@ def process_boolop_node(boolop_node: ast.BoolOp) -> List:
     return disjunctions
 
 
-def process_constraint_string(constraint_string: str) -> List:
+def process_constraint_string(constraint_string: str) -> List[List[AnyConstraintType]]:
     """
     Parse and process a string representing the collection constraints.
 
@@ -239,7 +235,7 @@ def process_constraint_string(constraint_string: str) -> List:
         return [process_tuple_node(node)]
 
     if isinstance(node, ast.Compare):
-        return [process_compare_node(node)]
+        return [process_compare_node(node)]  # type: ignore
 
     if isinstance(node, ast.Name):
         return [[(node.id,)]]
