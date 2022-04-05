@@ -1,8 +1,10 @@
-# ccc
+# Constrained-Combinations-Calculator
 
 [![PyPI version](https://badge.fury.io/py/ccc-calculator.svg)](https://badge.fury.io/py/ccc-calculator)
 
 Command line Combinatorial Calculator for Counting Constrained Collections.
+
+I've called it **ccc** for short.
 
 ```
 pip install ccc-calculator
@@ -15,18 +17,19 @@ ccc is a calculator that can:
 - tell you the *probability* of possible ways a certain collection of items can meet one or more constraints
 - *count* the number of possible ways a certain collection of items can meet one or more constraints
 
-ccc makes it strightforward to specify the type of collection you want, and handles all the calculation for you.
-
 For instance, suppose we're designing a *Magic: The Gathering* deck:
 
 > A deck of 60 cards contains **13** mountain cards and **12** swamp cards. What is the probability that we draw **7** cards and get **between 1 and 3 mountains** and **exactly 2 swamps**?
 
-Using ccc, we specify the collection we're drawing from, the number of cards we want to draw, and then constrain what we're hoping to see in our hand:
+Using ccc, we specify:
+- the names and counts of items in collection we're drawing from
+- the number of cards we want to draw
+- the counts of certain cards we want to draw
 
 ```
-$ ccc prob draw --from 'mountain=13; swamp=12; rest=35' \
-                --number 7 \
-                --constraints '1 <= mountain <= 3, swamp == 2' \
+$ ccc prob draw --number 7 \
+                --from 'mountain=13; swamp=12; rest=35' \
+                --constraints '1 <= mountain <= 3, swamp == 2'
 68068/292581
 ```
 
@@ -36,19 +39,25 @@ For another example, consider the following problem about investigating selectio
 
 > There are **232** tickets for an event. 363 people apply for a ticket, **12** of whom are from a particular group (so **351** are not from the group). Each ticket is allocated to one person at random and each person can recieve at most one ticket. What is the probability that **at most 2** tickets are given to people in the group?
 
-To work this out, we can simply write:
+To work this out, we can simply do the following:
 
 ```
-$ ccc probability draw --from 'group=12; rest=351' \
-                       --number 232 \
+$ ccc probability draw --number 232
+                       --from 'group=12; rest=351' \
                        --constraints 'group <= 2' \
                        --float
 0.00093
 ```
 
-That's a probability of roughly **1/10000**.
+That's a probability of roughly **1/1000**.
 
-See below for examples of other problems that can be solved using ccc.
+Now, this second example could also be solved using a hypergeometric test:
+```python
+scipy.stats.hypergeom(351 + 12, 232, 12).cdf(2)
+```
+But what if we wanted the group size to be between 1 and 7 or 8 and 11, or an even number? Or what if the population and contraints involved additional groups of people?
+
+Such questions are easy to solve using ccc. See the examples below for more detail.
 
 ## Install
 
@@ -57,23 +66,7 @@ Installation requires Python 3.6 or newer. You can use pip:
 pip install ccc-calculator
 ```
 
-## Development install
-
-If you want to develop ccc (thanks!), then clone the repo, create a virtual environment, install the development dependencies, install the module in editable mode and install pre-commit hooks:
-
-```
-git clone https://github.com/ajcr/ccc
-cd ccc
-python -m venv venv
-source venv/bin/activate
-python -m pip requirements-dev.txt
-python -m pip install -e .
-pre-commit install
-```
-
-Unit tests can be run with `pytest`. Pre-commit hooks will run on each git commit. The hooks can also be invoked with `pre-commit run -a`.
-
-## More examples
+## Examples
 
 ccc is always invoked in the following way:
 
