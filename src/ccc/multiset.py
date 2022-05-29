@@ -1,8 +1,9 @@
-from typing import AbstractSet, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from sympy import Poly, prod
+from sympy import prod
 from sympy.abc import x
 
+from ccc.polynomial import degrees_to_polynomial
 from ccc.polynomialtracker import PolynomialTracker
 
 
@@ -30,15 +31,3 @@ class Multiset(PolynomialTracker):
         """
         poly = prod(degrees_to_polynomial(degrees) for degrees in self._degrees.values())
         return poly.coeff_monomial(x ** self._max_degree)
-
-
-def degrees_to_polynomial(degrees: AbstractSet[int]) -> Poly:
-    """
-    For each degree in a set, create the polynomial with those
-    terms having coefficient 1 (and all other terms zero), e.g.:
-
-        {0, 2, 5} -> x**5 + x**2 + 1
-
-    """
-    degrees_dict = dict.fromkeys(degrees, 1)
-    return Poly.from_dict(degrees_dict, x)
