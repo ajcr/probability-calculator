@@ -66,7 +66,7 @@ def draw_command(number, constraints, from_, rational, replace) -> None:
 def permutation_command(sequence, constraints, same_distinct, rational):
     """
     Probability that a random permutation of the given sequence
-    meets the specified contraints.
+    meets the specified constraints.
     """
     constraints = process_constraint_string(constraints)
 

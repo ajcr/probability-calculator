@@ -14,7 +14,7 @@ def unpack_assign(assign: ast.Assign) -> Tuple[str, int]:
         value = assign.value.n  # type: ignore
 
     except (AttributeError, TypeError):
-        raise CollectionError(f"Item count at {assign.col_offset} not understood") from None
+        raise CollectionError(f"Item count at {assign.col_offset} not understood")
 
     if len(targets) > 1:
         raise CollectionError(

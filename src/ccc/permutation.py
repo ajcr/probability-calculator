@@ -98,14 +98,14 @@ class PermutationCounter:
     def probability(self) -> Rational:
         """
         Probability that a permutation of the sequence meets the
-        specified contraints.
+        specified constraints.
         """
         return self.count() / self.count_unconstrained_permutations()
 
     def count(self) -> int:
         """
         Number of permutations of the sequence that meets the
-        specified contraints.
+        specified constraints.
         """
         if not self.constraints:
             return self.count_unconstrained_permutations()

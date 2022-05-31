@@ -19,7 +19,7 @@ from ccc.multiset import Multiset
         (("mod", "red", 3, 1), {1, 4, 7, 10}),
     ],
 )
-def test_single_contraint(constraint, expected_degrees):
+def test_single_constraint(constraint, expected_degrees):
     """
     Test the constraint produces the correct set of integers.
     """
@@ -96,7 +96,7 @@ def test_no_constraints_with_collection():
         (("ge", "red", 5), {5, 6, 7, 8}),
     ],
 )
-def test_single_contraint_with_collection(constraint, expected_degrees):
+def test_single_constraint_with_collection(constraint, expected_degrees):
     """
     Test the constraint produces the correct set of integers
     when a collection is also specified.

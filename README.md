@@ -55,7 +55,7 @@ Now, this second example could also be solved using a hypergeometric test:
 ```python
 scipy.stats.hypergeom(351 + 12, 232, 12).cdf(2)
 ```
-But what if we wanted the group size to be between 1 and 7 or 8 and 11, or an even number? Or what if the population and contraints involved additional groups of people?
+But what if we wanted the group size to be between 1 and 7 or 8 and 11, or an even number? Or what if the population and constraints involved additional groups of people?
 
 Such questions are easy to solve using ccc. See the examples below for more detail.
 

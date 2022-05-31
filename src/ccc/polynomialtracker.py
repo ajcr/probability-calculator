@@ -30,15 +30,13 @@ class PolynomialTracker:
                     f"The following items are not in the collection: {', '.join(missing)}"
                 )
 
-        # impose any contraints on the items in the possible multisets
+        # impose any constraints on the items in the possible multisets
         if constraints is not None:
             for op, *args in constraints:
                 try:
                     getattr(self, "impose_constraint_" + op)(*args)
                 except AttributeError:
-                    raise ConstraintNotImplementedError(
-                        f"Constraint '{op}' is not implemented"
-                    ) from None
+                    raise ConstraintNotImplementedError(f"Constraint '{op}' is not implemented")
 
         # add items from the collection that were not constrained
         self._add_unconstrained_items()

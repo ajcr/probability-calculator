@@ -220,7 +220,7 @@ def process_constraint_string(constraint_string: str) -> List[List[AnyConstraint
         body = ast.parse(constraint_string).body
 
     except SyntaxError:
-        raise ConstraintError("Invalid syntax in constraint string") from None
+        raise ConstraintError("Invalid syntax in constraint string")
 
     if body:
         node = body[0].value  # type: ignore

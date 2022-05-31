@@ -63,18 +63,15 @@ class Draw(PolynomialTracker):
         constraints are met.
         """
 
-        if self.replace:
+        if not self.replace:
+            return self.count() / binomial(self.total_items_in_collection(), self._max_degree)
 
-            polys = []
-            total = self.total_items_in_collection()
+        polys = []
+        total = self.total_items_in_collection()
 
-            for item, degrees in self._degrees.items():
+        for item, degrees in self._degrees.items():
 
-                p = degrees_to_polynomial_with_fractional_coeff(
-                    degrees, self._collection[item], total
-                )
-                polys.append(p)
+            p = degrees_to_polynomial_with_fractional_coeff(degrees, self._collection[item], total)
+            polys.append(p)
 
-            return prod(polys).coeff_monomial(x ** self._max_degree) * factorial(self._max_degree)
-
-        return self.count() / binomial(self.total_items_in_collection(), self._max_degree)
+        return prod(polys).coeff_monomial(x ** self._max_degree) * factorial(self._max_degree)
