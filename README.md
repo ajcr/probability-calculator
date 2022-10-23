@@ -21,41 +21,39 @@ For instance, suppose we're designing a *Magic: The Gathering* deck:
 
 > A deck of 60 cards contains **13** mountain cards and **12** swamp cards. What is the probability that we draw **7** cards and get **between 1 and 3 mountains** and **exactly 2 swamps**?
 
-Using ccc, we specify:
-- the names and counts of items in collection we're drawing from
-- the number of cards we want to draw
-- the counts of certain cards we want to draw
+We can solve this problem easily:
 
 ```
-$ ccc probability draw 7 --from 'mountain=13; swamp=12; rest=35' \
-                         --where '1 <= mountain <= 3, swamp == 2'
+ccc probability draw 7 --from 'mountain=13; swamp=12; rest=35' \
+                       --where '1 <= mountain <= 3, swamp == 2'
+
 68068/292581
 ```
+So the chance of drawing a hand meeting these constraints is around **23%**.
 
-So the chance of drawing the handing meeting these constraints is around **23%**.
-
-For another example, consider the following problem about investigating selection bias (asked on [stats.stackexchange.com](https://stats.stackexchange.com/questions/24211)):
+Take another example. Consider the following problem about investigating bias in ticket allocation (asked on [stats.stackexchange.com](https://stats.stackexchange.com/questions/24211)):
 
 > There are **232** tickets for an event. 363 people apply for a ticket, **12** of whom are from a particular group (so **351** are not from the group). Each ticket is allocated to one person at random and each person can recieve at most one ticket. What is the probability that **at most 2** tickets are given to people in the group?
 
-To work this out, we can write:
+We can write:
 
 ```
-$ ccc probability draw 232 --from 'group=12; rest=351' \
+ccc probability draw 232 --from 'group=12; rest=351' \
                            --where 'group <= 2' \
                            --float
+
 0.00093
 ```
 
-That's a probability of roughly **1/1000** (`--float` returns the probability as a float rather than a rational number).
+That's a probability of roughly **1/1000**. Very unlikely that the tickets were given out randomly!
 
-Now, this second example could also be solved using a hypergeometric test:
+Of course, this second example could also be solved using a hypergeometric test:
 ```python
 scipy.stats.hypergeom(351 + 12, 232, 12).cdf(2)
 ```
 But what if we wanted the group size to be between 1 and 7 or 8 and 11, or an even number? Or what if the population and constraints involved additional groups of people?
 
-These and similar questions are easy to solve using ccc. See the examples below for more detail.
+These and similar questions are easy to set up and solve using ccc. See the examples below for more detail.
 
 ## Install
 
