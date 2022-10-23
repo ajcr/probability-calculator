@@ -1,4 +1,4 @@
- Constrained-Combinations-Calculator
+# Constrained-Combinations-Calculator
 
 [![PyPI version](https://badge.fury.io/py/ccc-calculator.svg)](https://badge.fury.io/py/ccc-calculator)
 
@@ -39,8 +39,8 @@ We can write:
 
 ```
 ccc probability draw 232 --from 'group=12; rest=351' \
-                           --where 'group <= 2' \
-                           --float
+                         --where 'group <= 2' \
+                         --float
 
 0.00093
 ```
