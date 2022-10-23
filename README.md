@@ -27,9 +27,8 @@ Using ccc, we specify:
 - the counts of certain cards we want to draw
 
 ```
-$ ccc prob draw --number 7 \
-                --from 'mountain=13; swamp=12; rest=35' \
-                --where '1 <= mountain <= 3, swamp == 2'
+$ ccc probability draw 7 --from 'mountain=13; swamp=12; rest=35' \
+                         --where '1 <= mountain <= 3, swamp == 2'
 68068/292581
 ```
 
@@ -39,17 +38,16 @@ For another example, consider the following problem about investigating selectio
 
 > There are **232** tickets for an event. 363 people apply for a ticket, **12** of whom are from a particular group (so **351** are not from the group). Each ticket is allocated to one person at random and each person can recieve at most one ticket. What is the probability that **at most 2** tickets are given to people in the group?
 
-To work this out, we can simply do the following:
+To work this out, we can write:
 
 ```
-$ ccc probability draw --number 232
-                       --from 'group=12; rest=351' \
-                       --where 'group <= 2' \
-                       --float
+$ ccc probability draw 232 --from 'group=12; rest=351' \
+                           --where 'group <= 2' \
+                           --float
 0.00093
 ```
 
-That's a probability of roughly **1/1000**.
+That's a probability of roughly **1/1000** (`--float` returns the probability as a float rather than a rational number).
 
 Now, this second example could also be solved using a hypergeometric test:
 ```python
@@ -57,7 +55,7 @@ scipy.stats.hypergeom(351 + 12, 232, 12).cdf(2)
 ```
 But what if we wanted the group size to be between 1 and 7 or 8 and 11, or an even number? Or what if the population and constraints involved additional groups of people?
 
-Such questions are easy to solve using ccc. See the examples below for more detail.
+These and similar questions are easy to solve using ccc. See the examples below for more detail.
 
 ## Install
 
@@ -97,12 +95,10 @@ Here is an example:
 To solve this with ccc we can easily specify the *collection* we draw from, the *size* of the draw we make, and any *constraints* on the draw:
 
 ```
-ccc probability draw --from "red=3; black=5; blue=7" \
-                     --number 4 \
-                     --where "blue == 0"
+ccc probability draw 4 --from "red=3; black=5; blue=7" \
+                       --where "blue == 0"
+2/39
 ```
-This puts the probability of winning (not drawing a blue marble) at **2/39**, so perhaps we'd win once every 19 or so attempts.
-
 Notice how easy it is to specify the constraints. Just the item's name (*blue*) and its desired count (*0*). Any comparison operators can be used (`==`, `!=`, `<`, `<=`, `>`, `>=`).
 
 We specify items in a collection via assignments, separated by semi-colons.
@@ -123,12 +119,10 @@ We can specify more complicated constraints on what we want to draw from the bag
 > What is you chance of winning the toy?
 
 ```
-ccc probability draw --from "red=3; black=5; blue=7; white=2" \
-                     --number 5 \
-                     --where "white == 2, black >= 1"
+ccc probability draw 5 --from "red=3; black=5; blue=7; white=2" \
+                       --where "white == 2, black >= 1"
+3/19
 ```
-Our chance of winning is **3/119** according to ccc, so we would expect to win around once every 40 attempts.
-
 You can see that to express multiple constraints on our draw, we simply used commas `,` to separate them.
 
 ---
@@ -143,12 +137,10 @@ Lastly, it is possible to use `or` (any number of times) in constraints:
 > What is the probability of succeeding now?
 
 ```
-ccc probability draw --from "red=3; black=5; blue=7; white=2" \
-                     --number 3 \
-                     --where "red == 3 or (white == 1, black == 1, blue == 1)"
+ccc probability draw 3 --from "red=3; black=5; blue=7; white=2" \
+                       --where "red == 3 or (white == 1, black == 1, blue == 1)"
+1/10
 ```
-The probability is **0.1**.
-
 
 ### Multisets
 

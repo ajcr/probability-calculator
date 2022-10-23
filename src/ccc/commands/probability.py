@@ -15,7 +15,7 @@ def probability() -> None:
 
 
 @probability.command("draw")
-@click.option("--number", "-n", type=int, required=True, help="Number of items to draw")
+@click.argument("number", type=int)
 @click.option(
     "--from", "-f", "from_", type=str, required=True, help="Collection of items to draw from"
 )
