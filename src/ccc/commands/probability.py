@@ -19,7 +19,9 @@ def probability() -> None:
 @click.option(
     "--from", "-f", "from_", type=str, required=True, help="Collection of items to draw from"
 )
-@click.option("--constraints", "-c", type=str, required=True, help="Constraints the draw must meet")
+@click.option(
+    "--where", "constraints", type=str, required=True, help="Constraints the draw must meet"
+)
 @click.option(
     "--replace/--no-replace",
     default=False,
@@ -57,7 +59,7 @@ def draw_command(number, constraints, from_, rational, replace) -> None:
 @probability.command("permutation")
 @click.argument("sequence")
 @click.option(
-    "--constraints", "-c", type=str, required=True, help="Constraints the permuation must meet"
+    "--where", "constraints", type=str, required=True, help="Constraints the permuation must meet"
 )
 @click.option(
     "--same-distinct/--no-same-distinct", default=False, help="Toggle whether each item is unique"

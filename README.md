@@ -1,4 +1,4 @@
-# Constrained-Combinations-Calculator
+ Constrained-Combinations-Calculator
 
 [![PyPI version](https://badge.fury.io/py/ccc-calculator.svg)](https://badge.fury.io/py/ccc-calculator)
 
@@ -29,7 +29,7 @@ Using ccc, we specify:
 ```
 $ ccc prob draw --number 7 \
                 --from 'mountain=13; swamp=12; rest=35' \
-                --constraints '1 <= mountain <= 3, swamp == 2'
+                --where '1 <= mountain <= 3, swamp == 2'
 68068/292581
 ```
 
@@ -44,7 +44,7 @@ To work this out, we can simply do the following:
 ```
 $ ccc probability draw --number 232
                        --from 'group=12; rest=351' \
-                       --constraints 'group <= 2' \
+                       --where 'group <= 2' \
                        --float
 0.00093
 ```
@@ -99,7 +99,7 @@ To solve this with ccc we can easily specify the *collection* we draw from, the 
 ```
 ccc probability draw --from "red=3; black=5; blue=7" \
                      --number 4 \
-                     --constraints "blue == 0"
+                     --where "blue == 0"
 ```
 This puts the probability of winning (not drawing a blue marble) at **2/39**, so perhaps we'd win once every 19 or so attempts.
 
@@ -125,7 +125,7 @@ We can specify more complicated constraints on what we want to draw from the bag
 ```
 ccc probability draw --from "red=3; black=5; blue=7; white=2" \
                      --number 5 \
-                     --constraints "white == 2, black >= 1"
+                     --where "white == 2, black >= 1"
 ```
 Our chance of winning is **3/119** according to ccc, so we would expect to win around once every 40 attempts.
 
@@ -145,7 +145,7 @@ Lastly, it is possible to use `or` (any number of times) in constraints:
 ```
 ccc probability draw --from "red=3; black=5; blue=7; white=2" \
                      --number 3 \
-                     --constraints "red == 3 or (white == 1, black == 1, blue == 1)"
+                     --where "red == 3 or (white == 1, black == 1, blue == 1)"
 ```
 The probability is **0.1**.
 
@@ -163,7 +163,7 @@ Multisets are unordered collections (like sets) in which an item may appear mult
 
 ```
 ccc count multisets --size 20 \
-                    --constraints 'apples < 10, bananas >= 5, grapes != 13, strawberries % 2 == 0'
+                    --where 'apples < 10, bananas >= 5, grapes != 13, strawberries % 2 == 0'
 ```
 
 The answer is **406**.
@@ -179,7 +179,7 @@ The modulo (`%`) operator used above also provides a means to solve coin change 
 > cf. [Project Euler problem 31](https://projecteuler.net/problem=31)
 
 ```
-ccc count multisets --constraints 'a%1==0, b%2==0, c%5==0, d%10==0, e%20==0, f%50==0, g%100==0, h%200==0' \
+ccc count multisets --where 'a%1==0, b%2==0, c%5==0, d%10==0, e%20==0, f%50==0, g%100==0, h%200==0' \
                     --size 500
 ```
 
@@ -188,7 +188,7 @@ The answer is computed within a couple of seconds as **6,295,434** different way
 We could also put additional constraints on the coins very easily, such as restricting the number of times a coin may be used. For example, if we had to use fewer than 61 pennies we'd add `a < 61` to these constraints:
 
 ```
-ccc count multisets --constraints 'a%1==0, a<61, b%2==0, c%5==0, d%10==0, e%20==0, f%50==0, g%100==0, h%200==0' \
+ccc count multisets --where 'a%1==0, a<61, b%2==0, c%5==0, d%10==0, e%20==0, f%50==0, g%100==0, h%200==0' \
                     --size 500
 ```
 
@@ -207,7 +207,7 @@ There are **34650** unique permutations of this famous river/state.
 What about if we only count permutations where instances of the same letter are not adjacent to each other?
 
 ```
-ccc count permutations MISSISSIPPI --constraints no_adjacent
+ccc count permutations MISSISSIPPI --where no_adjacent
 ```
 
 Using the 'no_adjacent' constraint, the answer comes back immediately as **2016**. The speed of this calculation is thanks to the use of [Generalised Larguerre Polynomials](https://arxiv.org/pdf/1306.6232.pdf).
@@ -217,7 +217,7 @@ We can also treat the letters as distinguishable (the `--same-distinct` flag) to
 > Five couples are to seated in a row. How many ways can they be seated such no couples are seated together?
 
 ```
-ccc count permutations AABBCCDDEE --constraints no_adjacent --same-distinct
+ccc count permutations AABBCCDDEE --where no_adjacent --same-distinct
 ```
 
 **1,263,360** ways.
@@ -227,7 +227,7 @@ ccc allows derangements (permutations where no item occupies its original place)
 > Five couples draw names from a hat. What is the probability that nobody draws either their own name, or the name of their partner?
 
 ```
-ccc probability permutation AABBCCDDEE --constraints derangement --float
+ccc probability permutation AABBCCDDEE --where derangement --float
 ```
 
 It turns out that there is only a **0.121** probability of this occurring.
@@ -239,7 +239,7 @@ Sequences are ordered collections of items.
 > How many 30 letter sequences can you make using no more than 20 each of **A**, **B** and **C**?
 
 ```
-ccc count sequences --size 30 --constraints 'A <= 20, B <= 20, C <= 20'
+ccc count sequences --size 30 --where 'A <= 20, B <= 20, C <= 20'
 ```
 
 The answer is a lot: there are **205,863,750,414,990** such sequences.

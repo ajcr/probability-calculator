@@ -15,7 +15,7 @@ from ccc.commands.count import multisets, sequences, permutations, draws
     ],
 )
 def test_count_multisets(runner, size, constraints, expected):
-    result = runner.invoke(multisets, ["--size", size, "--constraints", constraints])
+    result = runner.invoke(multisets, ["--size", size, "--where", constraints])
     assert result.output.rstrip() == str(expected)
 
 
@@ -45,7 +45,7 @@ def test_count_multisets_no_constraints(runner, subcommand, size, collection, ex
     ],
 )
 def test_count_sequences(runner, size, constraints, expected):
-    result = runner.invoke(sequences, ["--size", size, "--constraints", constraints])
+    result = runner.invoke(sequences, ["--size", size, "--where", constraints])
     assert result.output.rstrip() == str(expected)
 
 
@@ -83,7 +83,7 @@ def test_count_permutations_no_constraints(runner, sequence, expected, expected_
 )
 def test_count_draws(runner, size, collection, constraints, expected):
     result = runner.invoke(
-        draws, ["--size", size, "--collection", collection, "--constraints", constraints]
+        draws, ["--size", size, "--collection", collection, "--where", constraints]
     )
     assert result.output.rstrip() == str(expected)
 
@@ -102,11 +102,9 @@ def test_count_draws(runner, size, collection, constraints, expected):
     ],
 )
 def test_count_permutations_no_adjacent(runner, sequence, expected, expected_if_same_distinct):
-    result = runner.invoke(permutations, [sequence, "--constraints", "no_adjacent"])
+    result = runner.invoke(permutations, [sequence, "--where", "no_adjacent"])
     assert result.output.rstrip() == str(expected)
-    result = runner.invoke(
-        permutations, [sequence, "--constraints", "no_adjacent", "--same-distinct"]
-    )
+    result = runner.invoke(permutations, [sequence, "--where", "no_adjacent", "--same-distinct"])
     assert result.output.rstrip() == str(expected_if_same_distinct)
 
 
@@ -124,9 +122,7 @@ def test_count_permutations_no_adjacent(runner, sequence, expected, expected_if_
     ],
 )
 def test_count_permutations_derangement(runner, sequence, expected, expected_if_same_distinct):
-    result = runner.invoke(permutations, [sequence, "--constraints", "derangement"])
+    result = runner.invoke(permutations, [sequence, "--where", "derangement"])
     assert result.output.rstrip() == str(expected)
-    result = runner.invoke(
-        permutations, [sequence, "--constraints", "derangement", "--same-distinct"]
-    )
+    result = runner.invoke(permutations, [sequence, "--where", "derangement", "--same-distinct"])
     assert result.output.rstrip() == str(expected_if_same_distinct)

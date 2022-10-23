@@ -19,7 +19,7 @@ def count():
 @count.command()
 @click.option("--size", "-s", type=int, required=True, help="Number of items in multiset")
 @click.option("--collection", "-k", type=str, help="Collection to produce multisets from")
-@click.option("--constraints", "-c", type=str, help="Constraints on items in multiset")
+@click.option("--where", "constraints", type=str, help="Constraints on items in multiset")
 def multisets(size, constraints, collection):
     """
     Count multisets of the given size that meet zero or more constraints
@@ -56,7 +56,7 @@ def multisets(size, constraints, collection):
 @count.command()
 @click.option("--size", "-s", type=int, required=True, help="Number of items to draw")
 @click.option("--collection", "-k", type=str, required=True, help="Collection to draw from")
-@click.option("--constraints", "-c", type=str, help="Constraints on drawn items")
+@click.option("--where", "constraints", type=str, help="Constraints on drawn items")
 def draws(size, constraints, collection):
     """
     Count draws (without replacement) of the given size from a
@@ -89,7 +89,7 @@ def draws(size, constraints, collection):
 
 @count.command()
 @click.option("--size", "-s", type=int, required=True, help="Number of items in sequence")
-@click.option("--constraints", "-c", type=str, required=True, help="Constraints on sequences")
+@click.option("--where", "constraints", type=str, required=True, help="Constraints on sequences")
 @click.option("--collection", "-k", type=str, help="Collection to create sequences from")
 def sequences(size, constraints, collection):
     """
@@ -121,7 +121,7 @@ def sequences(size, constraints, collection):
 
 @count.command()
 @click.argument("sequence")
-@click.option("--constraints", "-c", type=str, help="Constraints on permutations")
+@click.option("--where", "constraints", type=str, help="Constraints on permutations")
 @click.option(
     "--same-distinct/--no-same-distinct", default=False, help="Toggle whether each item is unique"
 )
